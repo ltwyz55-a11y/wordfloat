@@ -6,7 +6,7 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [.executable(name: "WordFloat", targets: ["WordFloat"])],
     targets: [
-        .target(name: "WordCore", path: "App/Core"),
+        .target(name: "WordCore", path: "App/Core", resources: [.copy("Resources")]),
         .executableTarget(name: "WordFloat", dependencies: ["WordCore"], path: "App/Desktop"),
         .testTarget(name: "WordCoreTests", dependencies: ["WordCore"], path: "Tests")
     ]

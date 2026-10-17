@@ -8,6 +8,12 @@ public struct StoreError: LocalizedError {
 
 public final class VocabularyStore {
     private var db: OpaquePointer?
+    public static func bundled() throws -> VocabularyStore {
+        guard let url = Bundle.module.url(forResource: "vocabulary", withExtension: "sqlite", subdirectory: "Resources") else {
+            throw StoreError(message: "缺少内置词库，请重新安装应用。")
+        }
+        return try VocabularyStore(path: url.path)
+    }
     public init(path: String, readOnly: Bool = true) throws {
         let flags = readOnly ? SQLITE_OPEN_READONLY : SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
         guard sqlite3_open_v2(path, &db, flags | SQLITE_OPEN_FULLMUTEX, nil) == SQLITE_OK else {
