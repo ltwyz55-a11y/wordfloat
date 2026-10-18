@@ -108,16 +108,33 @@ enum DesktopDiagnostics {
         main.appearance = NSAppearance(named: .aqua)
         await pause()
         try capture(main,to:folder.appendingPathComponent("library-compact.png"))
-        _ = app.windowShouldClose(main)
-        try require(panel.isVisible && !main.isVisible, "closing main window returns to card")
+        app.showCard()
+        try require(panel.isVisible && !main.isVisible, "floating study action returns to card")
         try await checkAppearance(app: app, folder: folder)
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
-            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","close-to-card","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact"],
+            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact"],
             "installedEnglishVoices":SystemSpeechEngine().voices.filter { $0.language.hasPrefix("en") }.map(\.language),
             "notVerified":["physical-trackpad", "physical-audio-output", "full-screen-other-apps", "physical-multiple-monitors"]]
-        try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys]).write(to:folder.appendingPathComponent("desktop-checks.json"))
-        print("DESKTOP_CHECKS_PASSED")
+        // Exercise the native close-button path and only record success during actual termination.
+        let cleanup = app.terminationCheck
+        app.terminationCheck = {
+            cleanup?()
+            do {
+                try require(!panel.isVisible && !main.isVisible, "termination hides both main window and card")
+                try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys]).write(to:folder.appendingPathComponent("desktop-checks.json"))
+                print("DESKTOP_CHECKS_PASSED")
+            } catch {
+                fputs("\(error.localizedDescription)\n", stderr)
+                exit(1)
+            }
+        }
+        // Deliberately show both windows to verify cleanup even if the card is still visible.
+        app.showLibrary()
+        windows.showCard()
+        main.performClose(nil)
+        await pause(0.5)
+        throw DiagnosticError(message: "Closing the main window did not terminate the application")
     }
 
     private static func checkAppearance(app: AppDelegate, folder: URL) async throws {

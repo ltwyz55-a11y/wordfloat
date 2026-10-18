@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     var windows: WindowCoordinator?
     var mainWindow: NSWindow?
     let libraryNavigation = LibraryNavigation()
+    var terminationCheck: (() -> Void)?
     private var statusItem: NSStatusItem?
     private var toggleItem: NSMenuItem?
 
@@ -41,6 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             mainWindow = main
             installMenus()
             if let diagnosticIndex, let diagnosticEngine, arguments.indices.contains(diagnosticIndex+1) {
+                terminationCheck = { prefs.removePersistentDomain(forName: suiteName) }
                 Task { @MainActor in
                     do {
                         try await DesktopDiagnostics.run(app: self, engine: diagnosticEngine, folder: URL(fileURLWithPath: arguments[diagnosticIndex+1]))
@@ -84,12 +86,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc private func quit() { NSApp.terminate(nil) }
     func menuWillOpen(_ menu: NSMenu) { toggleItem?.title = windows?.panel.isVisible == true ? "隐藏单词卡片" : "显示单词卡片" }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        if sender === mainWindow { showCard(); return false }
+        if sender === mainWindow { quit(); return false }
         return true
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showLibrary(); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
-    func applicationWillTerminate(_ notification: Notification) { windows?.audio.stop() }
+    func applicationWillTerminate(_ notification: Notification) {
+        windows?.hideCard()
+        mainWindow?.orderOut(nil)
+        if let statusItem { NSStatusBar.system.removeStatusItem(statusItem) }
+        terminationCheck?()
+    }
 
     private func installMenus() {
         let menu = NSMenu()
