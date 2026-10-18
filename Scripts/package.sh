@@ -21,7 +21,7 @@ iconutil -c icns "$stage_dir/AppIcon.iconset" -o "$app_dir/Contents/Resources/Ap
 python3 - "$app_dir/Contents/Info.plist" <<'PY'
 import plistlib,sys
 info=dict(CFBundleExecutable='WordFloat',CFBundleIdentifier='local.wordfloat.mac',CFBundleName='浮词',
-    CFBundleDisplayName='浮词',CFBundlePackageType='APPL',CFBundleShortVersionString='1.0.0',CFBundleVersion='1',
+    CFBundleDisplayName='浮词',CFBundlePackageType='APPL',CFBundleShortVersionString='1.0.1',CFBundleVersion='2',
     CFBundleIconFile='AppIcon',LSMinimumSystemVersion='13.0',LSUIElement=True,NSHighResolutionCapable=True,
     CFBundleDevelopmentRegion='zh_CN',CFBundleLocalizations=['zh-Hans'],LSApplicationCategoryType='public.app-category.education')
 with open(sys.argv[1],'wb') as f: plistlib.dump(info,f)
