@@ -24,7 +24,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             let prefs = diagnosticIndex == nil ? UserDefaults.standard : UserDefaults(suiteName: suiteName)!
             let study = try StudySession(store: .bundled(), defaults: prefs)
             let audio = Pronunciation(engine: diagnosticEngine, defaults: prefs)
-            let windows = WindowCoordinator(study: study, audio: audio, defaults: prefs)
+            let appearance = CardAppearance(defaults: prefs, wallpaperDirectory: diagnosticIndex == nil ? nil : FileManager.default.temporaryDirectory.appendingPathComponent(suiteName))
+            let windows = WindowCoordinator(study: study, audio: audio, appearance: appearance, defaults: prefs)
             self.windows = windows
             windows.openLibrary = { [weak self] in self?.showLibrary() }
             let main = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),

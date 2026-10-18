@@ -12,6 +12,7 @@ final class FloatingPanel: NSPanel {
 final class WindowCoordinator: NSObject, NSWindowDelegate {
     let study: StudySession
     let audio: Pronunciation
+    let appearance: CardAppearance
     let panel: FloatingPanel
     private let defaults: UserDefaults
     private var subscriptions: Set<AnyCancellable> = []
@@ -19,8 +20,8 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     private var events: CardEventHandler?
     var openLibrary: (() -> Void)?
 
-    init(study: StudySession, audio: Pronunciation, defaults: UserDefaults = .standard) {
-        self.study = study; self.audio = audio; self.defaults = defaults
+    init(study: StudySession, audio: Pronunciation, appearance: CardAppearance, defaults: UserDefaults = .standard) {
+        self.study = study; self.audio = audio; self.appearance = appearance; self.defaults = defaults
         panel = FloatingPanel(contentRect: NSRect(x: 0, y: 0, width: 260, height: 150),
             styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         super.init()
@@ -34,7 +35,7 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
         panel.hasShadow = true
         panel.isReleasedWhenClosed = false
         panel.delegate = self
-        let hostingView = NSHostingView(rootView: CardView(study: study, audio: audio, onOpenLibrary: { [weak self] in self?.openLibrary?() }))
+        let hostingView = NSHostingView(rootView: CardView(study: study, audio: audio, appearance: appearance, onOpenLibrary: { [weak self] in self?.openLibrary?() }))
         // The coordinator owns the panel size; do not derive window constraints from SwiftUI.
         hostingView.sizingOptions = []
         panel.contentView = hostingView

@@ -4,15 +4,19 @@ import WordCore
 struct CardView: View {
     @ObservedObject var study: StudySession
     @ObservedObject var audio: Pronunciation
+    @ObservedObject var appearance: CardAppearance
     var onOpenLibrary: () -> Void = {}
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    var previewRevealed: Bool? = nil
     @State private var hovering = false
+    private var revealed: Bool { previewRevealed ?? study.revealed }
+    private var ink: Color { appearance.style.followsSystem ? .primary : appearance.style.text.color }
+    private var secondaryInk: Color { appearance.style.followsSystem ? .secondary : ink.opacity(0.78) }
 
     var body: some View {
         VStack(spacing: 0) {
-            Capsule().fill(Color.secondary.opacity(hovering ? 0.35 : 0.15))
+            Capsule().fill(ink.opacity(hovering ? 0.35 : 0.15))
                 .frame(width: 28, height: 3).frame(maxWidth: .infinity).frame(height: 24)
-                .overlay(DragHandle().help("拖动这里移动卡片"))
+                .overlay { if previewRevealed == nil { DragHandle().help("拖动这里移动卡片") } }
                 .accessibilityLabel("拖动顶部可移动卡片")
             VStack(spacing: 9) {
                 if let entry = study.current {
@@ -22,23 +26,23 @@ struct CardView: View {
                         .lineLimit(3).minimumScaleFactor(0.65)
                         .frame(maxWidth: .infinity)
                         .accessibilityLabel("单词：\(entry.word.spelling)")
-                    if study.revealed {
+                    if revealed {
                         HStack(spacing: 8) {
                             if !entry.word.partOfSpeech.isEmpty {
                                 Text(entry.word.partOfSpeech).italic()
                             }
                             if !entry.word.phonetic.isEmpty { Text(entry.word.phonetic) }
-                        }.font(.system(size: 12)).foregroundStyle(.secondary)
+                        }.font(.system(size: 12)).foregroundStyle(secondaryInk)
                             .lineLimit(1).minimumScaleFactor(0.7)
                         ScrollView(.vertical) {
                             Text(entry.meaning)
                                 .font(.system(size: 13)).lineSpacing(4)
-                                .foregroundStyle(.secondary).multilineTextAlignment(.center)
+                                .foregroundStyle(secondaryInk).multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
                         }.frame(maxHeight: 76)
                     }
                 } else {
-                    Text("选择一个词本").font(.title3).foregroundStyle(.secondary)
+                    Text("选择一个词本").font(.title3).foregroundStyle(secondaryInk)
                 }
             }
             .padding(.horizontal, 20)
@@ -61,16 +65,13 @@ struct CardView: View {
                 Button { study.advance(1) } label: { Image(systemName: "chevron.right").font(.system(size: 10, weight: .medium)) }
                     .opacity(hovering ? 0.6 : 0).help("下一个单词")
             }
-            .buttonStyle(.plain).foregroundStyle(.secondary)
+            .buttonStyle(.plain).foregroundStyle(secondaryInk)
             .frame(height: 36)
         }
-        .frame(width: 260, height: study.revealed ? 220 : 150)
-        .background {
-            if reduceTransparency { Color(nsColor: .windowBackgroundColor) }
-            else { Rectangle().fill(.regularMaterial) }
-        }
+        .foregroundStyle(ink)
+        .frame(width: 260, height: revealed ? 220 : 150)
+        .background { CardSurface(style: appearance.style, wallpaper: appearance.wallpaper) }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Color.primary.opacity(0.07)))
         .onHover { hovering = $0 }
     }
 
