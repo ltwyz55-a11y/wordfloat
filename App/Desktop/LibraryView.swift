@@ -63,6 +63,14 @@ struct LibraryView: View {
             categoryButton("考试词汇", icon: "graduationcap", value: .exam)
             categoryButton("专业领域", icon: "cube.transparent", value: .professional)
             Spacer()
+            VStack(alignment: .leading, spacing: 10) {
+                Text("发音").font(.system(size: 11)).foregroundStyle(.secondary)
+                Picker("发音口音", selection: $audio.accent) {
+                    Text("美音").tag("en-US")
+                    Text("英音").tag("en-GB")
+                }.pickerStyle(.segmented).labelsHidden()
+                if let message = audio.message { Text(message).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true) }
+            }.padding(.horizontal, 8).padding(.bottom, 18)
             Text("一点空闲，\n一个新词。")
                 .font(.system(size: 13)).lineSpacing(6).foregroundStyle(.tertiary)
                 .padding(.leading, 10).padding(.bottom, 12)
