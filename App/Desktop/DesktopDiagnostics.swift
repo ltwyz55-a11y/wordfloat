@@ -110,12 +110,75 @@ enum DesktopDiagnostics {
         try capture(main,to:folder.appendingPathComponent("library-compact.png"))
         _ = app.windowShouldClose(main)
         try require(panel.isVisible && !main.isVisible, "closing main window returns to card")
+        try await checkAppearance(app: app, folder: folder)
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
-            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","close-to-card","light-and-dark-previews"],
+            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","close-to-card","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact"],
             "installedEnglishVoices":SystemSpeechEngine().voices.filter { $0.language.hasPrefix("en") }.map(\.language),
             "notVerified":["physical-trackpad", "physical-audio-output", "full-screen-other-apps", "physical-multiple-monitors"]]
         try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys]).write(to:folder.appendingPathComponent("desktop-checks.json"))
         print("DESKTOP_CHECKS_PASSED")
+    }
+
+    private static func checkAppearance(app: AppDelegate, folder: URL) async throws {
+        guard let windows = app.windows, let main = app.mainWindow else { return }
+        let appearance = windows.appearance, study = windows.study, panel = windows.panel
+        defer {
+            appearance.removeWallpaper()
+            try? FileManager.default.removeItem(at: appearance.wallpaperDirectory)
+            app.libraryNavigation.showsAppearance = false
+        }
+        try study.selectBook("automotive")
+        if let word = study.entries.first(where: { $0.word.id == "greenhouse" }) { study.jump(to: word) }
+        for preset in CardPreset.allCases {
+            appearance.apply(preset)
+            await pause()
+            try require(appearance.style.preset == preset && panel.frame.height == 150, "apply preset without changing compact size")
+            try capture(panel, to: folder.appendingPathComponent("theme-\(preset.rawValue).png"))
+        }
+        appearance.apply(.frosted)
+        app.libraryNavigation.showsAppearance = true
+        app.showLibrary()
+        main.setContentSize(NSSize(width:900,height:760))
+        await pause(0.4)
+        try capture(main, to: folder.appendingPathComponent("appearance-light.png"))
+        main.appearance = NSAppearance(named: .darkAqua)
+        await pause()
+        try capture(main, to: folder.appendingPathComponent("appearance-dark.png"))
+        main.setContentSize(NSSize(width:800,height:580))
+        await pause()
+        try capture(main, to: folder.appendingPathComponent("appearance-compact.png"))
+        // Deterministic test image; no personal photo is copied into diagnostics or the app.
+        let bitmap = NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:360,pixelsHigh:240,bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0)!
+        for y in 0..<240 {
+            for x in 0..<360 {
+                let offset = y * bitmap.bytesPerRow + x * 4
+                bitmap.bitmapData![offset] = UInt8(45 + x / 3)
+                bitmap.bitmapData![offset + 1] = UInt8(90 + y / 3)
+                bitmap.bitmapData![offset + 2] = UInt8(110 + x / 5)
+                bitmap.bitmapData![offset + 3] = 255
+            }
+        }
+        let source = folder.appendingPathComponent("test-wallpaper.png")
+        try bitmap.representation(using: .png, properties: [:])!.write(to: source)
+        try appearance.importWallpaper(from: source)
+        try require(appearance.wallpaper != nil && appearance.style.mode == .wallpaper, "wallpaper import")
+        app.showCard()
+        await pause()
+        try capture(panel, to: folder.appendingPathComponent("theme-wallpaper.png"))
+        appearance.setText(CardRGB(1, 0.86, 0.57))
+        await pause()
+        try capture(panel, to: folder.appendingPathComponent("theme-custom-text.png"))
+        click(panel)
+        await pause(NSEvent.doubleClickInterval + 0.3)
+        try require(study.revealed && panel.frame.height == 220, "wallpaper card reveals")
+        click(panel)
+        await pause(NSEvent.doubleClickInterval + 0.3)
+        try require(!study.revealed && panel.frame.height == 150, "wallpaper card collapses")
+        app.showLibrary()
+        main.appearance = NSAppearance(named: .aqua)
+        main.setContentSize(NSSize(width:900,height:760))
+        await pause()
+        try capture(main, to: folder.appendingPathComponent("appearance-wallpaper.png"))
     }
 }
