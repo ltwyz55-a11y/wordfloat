@@ -9,6 +9,13 @@ public struct StoreError: LocalizedError {
 public final class VocabularyStore {
     private var db: OpaquePointer?
     public static func bundled() throws -> VocabularyStore {
+        // A packaged app must be self-contained; never silently use a developer build directory.
+        if Bundle.main.bundleURL.pathExtension == "app" {
+            guard let url = Bundle.main.url(forResource: "vocabulary", withExtension: "sqlite") else {
+                throw StoreError(message: "缺少内置词库，请重新安装应用。")
+            }
+            return try VocabularyStore(path: url.path)
+        }
         guard let url = Bundle.module.url(forResource: "vocabulary", withExtension: "sqlite", subdirectory: "Resources") else {
             throw StoreError(message: "缺少内置词库，请重新安装应用。")
         }

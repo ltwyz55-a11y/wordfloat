@@ -55,6 +55,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             if UserDefaults.standard.bool(forKey: "hasLaunched") { showCard() }
             else { showLibrary(); UserDefaults.standard.set(true, forKey: "hasLaunched") }
         } catch {
+            if ProcessInfo.processInfo.arguments.contains("--diagnostics") {
+                fputs("\(error.localizedDescription)\n", stderr)
+                exit(1)
+            }
             NSAlert(error: error).runModal()
             NSApp.terminate(nil)
         }
