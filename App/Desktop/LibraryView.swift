@@ -9,7 +9,9 @@ struct LibraryView: View {
     var onReturn: () -> Void
     @State private var category: BookCategory?
     @State private var error: String?
-    private var books: [VocabularyBook] { study.books.filter { category == nil || $0.category == category } }
+    @State private var bookQuery = ""
+    @State private var browsingWords = false
+    private var books: [VocabularyBook] { BookSearch.filter(study.books, category: category, query: bookQuery) }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -26,7 +28,11 @@ struct LibraryView: View {
                         Label("悬浮学习", systemImage: "rectangle.inset.filled")
                     }.buttonStyle(.borderedProminent).tint(inkAccent).controlSize(.large)
                 }
+                TextField("搜索词本", text: $bookQuery).textFieldStyle(.roundedBorder).frame(maxWidth: 280)
                 ScrollView {
+                    if books.isEmpty {
+                        Text("没有找到匹配的词本").foregroundStyle(.secondary).padding(30)
+                    }
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
                         ForEach(books) { book in
                             BookTile(book: book, selected: study.selectedBookID == book.id) {
@@ -41,6 +47,7 @@ struct LibraryView: View {
         .frame(minWidth: 800, minHeight: 580)
         .background(Color(nsColor: .windowBackgroundColor))
         .tint(inkAccent)
+        .sheet(isPresented: $browsingWords) { WordBrowser(study: study, audio: audio) }
         .alert("无法打开词本", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) {
             Button("好") { error = nil }
         } message: { Text(error ?? "") }
@@ -77,6 +84,7 @@ struct LibraryView: View {
             HStack {
                 Text("正在学习 · \(study.currentBook?.name ?? "")").font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
                 Spacer()
+                Button("浏览词条") { browsingWords = true }.buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(inkAccent)
                 if let current = study.current {
                     Button { audio.speak(current.word.spelling) } label: { Image(systemName: "speaker.wave.2") }
                         .buttonStyle(.plain).help("播放发音")
