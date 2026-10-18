@@ -17,9 +17,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
-            let study = try StudySession(store: .bundled(), defaults: .standard)
-            let audio = Pronunciation(defaults: .standard)
-            let windows = WindowCoordinator(study: study, audio: audio)
+            let arguments = ProcessInfo.processInfo.arguments
+            let diagnosticIndex = arguments.firstIndex(of: "--diagnostics")
+            let diagnosticEngine = diagnosticIndex == nil ? nil : DiagnosticSpeechEngine()
+            let suiteName = "WordFloat.Diagnostics.\(UUID().uuidString)"
+            let prefs = diagnosticIndex == nil ? UserDefaults.standard : UserDefaults(suiteName: suiteName)!
+            let study = try StudySession(store: .bundled(), defaults: prefs)
+            let audio = Pronunciation(engine: diagnosticEngine, defaults: prefs)
+            let windows = WindowCoordinator(study: study, audio: audio, defaults: prefs)
             self.windows = windows
             windows.openLibrary = { [weak self] in self?.showLibrary() }
             let main = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
@@ -33,6 +38,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             main.center()
             mainWindow = main
             installMenus()
+            if let diagnosticIndex, let diagnosticEngine, arguments.indices.contains(diagnosticIndex+1) {
+                Task { @MainActor in
+                    do {
+                        try await DesktopDiagnostics.run(app: self, engine: diagnosticEngine, folder: URL(fileURLWithPath: arguments[diagnosticIndex+1]))
+                        prefs.removePersistentDomain(forName: suiteName)
+                        NSApp.terminate(nil)
+                    } catch {
+                        fputs("\(error.localizedDescription)\n", stderr)
+                        prefs.removePersistentDomain(forName: suiteName)
+                        exit(1)
+                    }
+                }
+                return
+            }
             if UserDefaults.standard.bool(forKey: "hasLaunched") { showCard() }
             else { showLibrary(); UserDefaults.standard.set(true, forKey: "hasLaunched") }
         } catch {

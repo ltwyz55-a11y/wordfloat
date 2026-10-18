@@ -11,7 +11,7 @@ struct CardView: View {
     var body: some View {
         VStack(spacing: 0) {
             Capsule().fill(Color.secondary.opacity(hovering ? 0.35 : 0.15))
-                .frame(width: 28, height: 3).frame(height: 24)
+                .frame(width: 28, height: 3).frame(maxWidth: .infinity).frame(height: 24)
                 .overlay(DragHandle().help("拖动这里移动卡片"))
                 .accessibilityLabel("拖动顶部可移动卡片")
             VStack(spacing: 9) {
