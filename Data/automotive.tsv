@@ -1,0 +1,335 @@
+word	pos	meaning
+A-pillar	n.	A柱；前风挡两侧的车身支柱
+B-pillar	n.	B柱；前后侧门之间的车身支柱
+C-pillar	n.	C柱；车顶后部的侧向支柱
+D-pillar	n.	D柱；旅行车等车型最后方的车顶支柱
+beltline	n.	腰线；侧窗下缘与车身的分界线
+shoulder line	n.	肩线；车身侧面上部塑造体量的特征线
+character line	n.	特征线；用于表达车身造型的轮廓或折线
+crease line	n.	折线；相邻曲面形成的清晰折痕线
+waistline	n.	车身腰部横向延伸的造型线
+rocker panel	n.	门槛外板；车门下方的纵向车身板件
+sill	n.	门槛；车门开口底部的结构区域
+roofline	n.	车顶轮廓线
+greenhouse	n.	车身上部由车窗与车顶组成的视觉体量
+daylight opening	n.	车窗透光开口区域；常缩写为DLO
+windshield	n.	前风挡玻璃
+backlight	n.	后风挡玻璃
+quarter window	n.	车身侧面的小型固定或可开启角窗
+cowl	n.	前风挡下方与发动机舱连接的车身区域
+hood	n.	发动机舱盖；美式用语
+bonnet	n.	发动机舱盖；英式用语
+fender	n.	翼子板；车轮上方及周围的外覆盖件
+quarter panel	n.	后翼子板；车身后侧的外覆盖板件
+wheel arch	n.	轮拱；车身围绕车轮形成的弧形开口
+wheel opening	n.	车轮开口；轮胎在车身侧面的容纳区域
+wheelbase	n.	轴距；前后车轴中心线之间的距离
+track width	n.	轮距；同一车轴两侧车轮中心面间距
+front overhang	n.	前悬；前轴中心至车辆最前端的距离
+rear overhang	n.	后悬；后轴中心至车辆最后端的距离
+ground clearance	n.	离地间隙；车辆规定部位与地面的距离
+approach angle	n.	接近角；前端不触地时可驶上坡面的最大角度
+departure angle	n.	离去角；后端不触地时可驶离坡面的最大角度
+breakover angle	n.	纵向通过角；车辆跨越坡顶的几何通过能力指标
+ramp angle	n.	坡道通过角；描述车辆越过坡顶的能力
+front fascia	n.	前脸外饰总成或前部造型面
+rear fascia	n.	车尾外饰总成或后部造型面
+grille	n.	格栅；车头进气或装饰开口
+bumper	n.	保险杠总成
+bumper cover	n.	保险杠外皮；覆盖在吸能结构外的造型件
+splitter	n.	前分流板；控制车头气流的空气动力学部件
+spoiler	n.	扰流板；改变局部气流以影响升力等性能
+rear wing	n.	尾翼；利用翼型产生空气动力作用的后部部件
+diffuser	n.	扩散器；车底后部逐渐扩张的气流通道
+undertray	n.	底部护板或平整化底板
+side skirt	n.	侧裙；车身侧面下缘的外饰部件
+air intake	n.	进气口
+air outlet	n.	出气口
+air curtain	n.	气帘；通过引导气流降低轮区扰动的设计
+air dam	n.	前部下方挡风板；用于控制底部气流
+active grille shutter	n.	主动进气格栅叶片
+wheel deflector	n.	车轮导流板
+vortex generator	n.	涡流发生器；用于调节边界层气流
+flush door handle	n.	隐藏式或与表面齐平的车门把手
+recessed handle	n.	内凹式把手
+pop-out handle	n.	弹出式门把手
+side mirror	n.	外后视镜
+mirror housing	n.	后视镜壳体
+camera mirror	n.	摄像头后视系统
+shark-fin antenna	n.	鲨鱼鳍天线
+roof rail	n.	车顶纵向行李架导轨
+roof rack	n.	车顶行李架
+sunroof	n.	天窗
+panoramic roof	n.	全景车顶
+convertible top	n.	敞篷车可收合车顶
+hardtop	n.	硬顶结构
+soft top	n.	软质敞篷车顶
+fastback	n.	快背造型；车顶向尾部连续下倾
+notchback	n.	阶背造型；车顶与行李厢形成明显台阶
+hatchback	n.	掀背车；尾门包含后窗并整体开启
+liftback	n.	斜背掀背式车身
+sedan	n.	轿车；通常为三厢布局
+coupe	n.	轿跑车；强调低矮流畅的车身比例
+wagon	n.	旅行车
+shooting brake	n.	猎装式车身；融合轿跑比例与旅行车尾部
+roadster	n.	双座敞篷跑车
+sport utility vehicle	n.	运动型多用途车；SUV
+crossover	n.	跨界车型
+pickup truck	n.	皮卡；驾驶室后带开放式货厢
+minivan	n.	小型多用途厢式车
+multi-purpose vehicle	n.	多用途乘用车；MPV
+one-box design	n.	单厢造型；整体体量接近单一厢体
+two-box design	n.	两厢造型；发动机舱与乘员货物舱形成两个体量
+three-box design	n.	三厢造型；发动机舱、乘员舱和行李厢分别成形
+cab-forward design	n.	座舱前移的车身布局与造型
+cab-rearward design	n.	座舱后移的车身比例
+stance	n.	车辆姿态；由轮距、车高及车轮位置等形成的视觉印象
+proportion	n.	车身各体量与尺寸之间的比例关系
+visual mass	n.	视觉体量；造型在视觉上呈现的厚重或轻盈程度
+wedge shape	n.	楔形造型；车身轮廓整体呈前低后高
+boat tail	n.	船尾式车尾；后部体量逐渐收窄
+tumblehome	n.	车身上部侧壁或侧窗向内倾斜的程度
+plan view	n.	俯视图
+side elevation	n.	侧视图
+front elevation	n.	前视图
+rear elevation	n.	后视图
+three-quarter view	n.	四分之三视角；同时展示正面与侧面
+orthographic projection	n.	正投影
+perspective sketch	n.	透视草图
+thumbnail sketch	n.	缩略构思草图
+ideation sketch	n.	概念发散草图
+rendering	n.	效果图；通过绘制或计算呈现设计外观
+highlight	n.	高光；表面受光形成的明亮区域
+reflection line	n.	反射线；用于观察曲面形态的映射线条
+zebra analysis	n.	斑马纹分析；用于检查曲面连续性
+curvature comb	n.	曲率梳；显示曲率变化的分析图
+surface continuity	n.	曲面连续性
+positional continuity	n.	位置连续；相邻曲面边界相接
+tangent continuity	n.	切向连续；相邻曲面在接缝处切向一致
+curvature continuity	n.	曲率连续；接缝处曲率与切向保持连续
+Class-A surface	n.	A级曲面；对外观品质要求较高的可见造型曲面
+Class-B surface	n.	B面；通常指外观面背侧或结构侧曲面
+Class-C surface	n.	C面；通常连接外观面与背侧结构面的过渡面
+NURBS surface	n.	非均匀有理B样条曲面
+control point	n.	控制点；用于调整曲线或曲面形状
+isoparm	n.	等参线；曲面参数保持一维恒定形成的曲线
+trimmed surface	n.	裁剪曲面
+surface patch	n.	曲面片
+fillet	n.	圆角过渡
+chamfer	n.	倒角
+blend surface	n.	过渡曲面
+crown	n.	曲面拱度；表面鼓起的程度
+section curve	n.	截面曲线
+cross section	n.	横截面
+loft	n.	放样；通过多条截面曲线生成曲面
+sweep	n.	扫掠；沿路径生成曲面或实体
+offset surface	n.	偏置曲面
+surface normal	n.	曲面法向
+clay model	n.	油泥模型
+industrial clay	n.	工业油泥
+full-scale model	n.	全尺寸模型
+scale model	n.	比例模型
+clay milling	n.	油泥模型数控铣削
+tape drawing	n.	胶带图；用胶带绘制造型轮廓
+armature	n.	模型内部支撑骨架
+hard model	n.	硬质模型
+show car	n.	展示车
+concept car	n.	概念车
+production vehicle	n.	量产车
+prototype vehicle	n.	原型车
+styling buck	n.	造型模型台架
+seating buck	n.	座舱乘坐体验台架
+package drawing	n.	总布置图
+hard point	n.	硬点；布置或工程约束中的关键固定位置
+H-point	n.	H点；描述乘员髋部位置的参考点
+R-point	n.	R点；设计规定的座椅参考点
+heel point	n.	踵点；驾驶员脚跟的参考位置
+eye ellipse	n.	眼椭圆；描述驾驶员眼点位置分布的模型
+headroom	n.	头部空间
+legroom	n.	腿部空间
+shoulder room	n.	肩部空间
+hip room	n.	臀部空间
+ingress	n.	上车过程
+egress	n.	下车过程
+step-in height	n.	上车踏入高度
+sightline	n.	视线
+field of view	n.	视野范围
+blind spot	n.	视野盲区
+visibility envelope	n.	可视范围包络
+reach envelope	n.	手部可触及范围包络
+steering wheel	n.	方向盘
+steering column	n.	转向柱
+steering wheel rim	n.	方向盘轮缘
+steering wheel spoke	n.	方向盘辐条
+instrument panel	n.	仪表板总成
+instrument cluster	n.	组合仪表
+center console	n.	中央控制台或中央通道饰件
+center stack	n.	中控台中央竖向功能区域
+dashboard	n.	仪表台
+head-up display	n.	抬头显示系统；HUD
+infotainment system	n.	信息娱乐系统
+human-machine interface	n.	人机界面；HMI
+rotary controller	n.	旋钮式控制器
+haptic feedback	n.	触觉反馈
+physical button	n.	实体按键
+capacitive touch	n.	电容触控
+ambient lighting	n.	氛围照明
+reading light	n.	阅读灯
+air vent	n.	空调出风口
+vent louver	n.	出风口导风叶片
+glove compartment	n.	手套箱
+cup holder	n.	杯架
+armrest	n.	扶手
+door trim	n.	车门内饰板
+door pull	n.	车门拉手
+speaker grille	n.	扬声器格栅
+headliner	n.	顶棚内衬
+sun visor	n.	遮阳板
+floor carpet	n.	地毯
+floor mat	n.	脚垫
+seat cushion	n.	座垫
+seat backrest	n.	座椅靠背
+head restraint	n.	头枕；限制头部相对位移的装置
+lumbar support	n.	腰部支撑
+side bolster	n.	座椅侧翼支撑
+seat track	n.	座椅滑轨
+seat adjustment	n.	座椅调节
+seat ventilation	n.	座椅通风
+seat heating	n.	座椅加热
+seat belt	n.	安全带
+belt buckle	n.	安全带锁扣
+child seat anchor	n.	儿童座椅固定点
+airbag	n.	安全气囊
+curtain airbag	n.	侧气帘
+knee airbag	n.	膝部气囊
+crumple zone	n.	溃缩吸能区
+crash box	n.	吸能盒
+pedestrian protection	n.	行人保护
+crashworthiness	n.	碰撞安全性能
+side impact	n.	侧面碰撞
+frontal impact	n.	正面碰撞
+rear impact	n.	后部碰撞
+rollover	n.	翻滚事故或翻滚工况
+body-in-white	n.	白车身；涂装前的车身焊装总成
+body-on-frame	n.	非承载式车身；车身安装于独立车架
+unibody	n.	承载式车身结构
+space frame	n.	空间框架结构
+monocoque	n.	单体壳式承载结构
+subframe	n.	副车架
+crossmember	n.	横梁
+longitudinal member	n.	纵梁
+firewall	n.	前围板；乘员舱与动力舱之间的隔板
+floorpan	n.	地板总成
+roof bow	n.	车顶横梁
+door inner panel	n.	车门内板
+door outer panel	n.	车门外板
+hem flange	n.	包边翻边
+hemming	n.	包边工艺
+spot weld	n.	点焊连接
+laser welding	n.	激光焊接
+structural adhesive	n.	结构胶
+rivet bonding	n.	铆接与胶接结合的连接工艺
+stamping	n.	冲压
+hydroforming	n.	液压成形
+deep drawing	n.	拉深成形
+springback	n.	回弹；成形卸载后的形状恢复
+panel gap	n.	板件间隙
+flushness	n.	面差；相邻外观面之间的高度差
+fit and finish	n.	装配匹配与表面完成品质
+tolerance stack-up	n.	公差累积
+shut line	n.	开闭件与邻接板件之间的分缝线
+parting line	n.	分型线；模具分型处在零件上形成的界线
+attachment point	n.	安装连接点
+clip	n.	卡扣
+fastener	n.	紧固件
+weatherstrip	n.	密封条
+seal lip	n.	密封唇边
+drain channel	n.	排水槽
+water management	n.	车身水流引导与排水设计
+corrosion protection	n.	防腐蚀保护
+e-coat	n.	电泳涂层
+primer	n.	底漆
+basecoat	n.	色漆层
+clearcoat	n.	透明面漆层
+metallic paint	n.	金属漆
+pearlescent paint	n.	珠光漆
+matte finish	n.	哑光表面效果
+gloss level	n.	光泽度
+color travel	n.	随观察角度变化的颜色变化现象
+grain texture	n.	纹理；内外饰表面的细微纹样
+soft-touch coating	n.	软触感涂层
+piano black	n.	钢琴黑高光饰面
+brushed aluminum	n.	拉丝铝饰面
+open-pore wood	n.	开放漆木饰面；保留可感知木材孔隙
+perforated leather	n.	打孔皮革
+synthetic leather	n.	合成革
+stitching	n.	缝线工艺
+contrast stitching	n.	对比色缝线
+piping	n.	嵌边；座椅等软饰边缘的凸起包边
+lamination	n.	层压复合
+color and trim	n.	色彩与内外饰材料设计
+CMF	n.	色彩、材料与表面工艺设计
+headlamp	n.	前照灯
+daytime running light	n.	日间行车灯；DRL
+taillamp	n.	尾灯
+turn signal	n.	转向灯
+light signature	n.	灯光识别特征
+light guide	n.	导光件
+projector lens	n.	投射式灯具透镜
+matrix LED	n.	矩阵式LED照明
+adaptive lighting	n.	自适应照明
+light bar	n.	贯穿式或条状灯组
+reflector	n.	反射器
+fog lamp	n.	雾灯
+wheel rim	n.	轮辋
+aerodynamic wheel	n.	低风阻车轮
+wheel spoke	n.	车轮辐条
+wheel offset	n.	车轮偏距
+tire sidewall	n.	轮胎侧壁
+tread pattern	n.	胎面花纹
+rolling resistance	n.	滚动阻力
+contact patch	n.	轮胎接地印迹
+suspension travel	n.	悬架行程
+wheel clearance	n.	车轮周围的运动间隙
+turning circle	n.	转弯圆直径或转弯轨迹范围
+steering lock	n.	最大转向角位置
+camber angle	n.	车轮外倾角
+caster angle	n.	主销后倾角
+toe angle	n.	车轮前束角
+drag coefficient	n.	空气阻力系数
+frontal area	n.	迎风面积
+lift coefficient	n.	升力系数
+downforce	n.	下压力
+boundary layer	n.	边界层
+flow separation	n.	气流分离
+wake	n.	尾流
+wind tunnel	n.	风洞
+computational fluid dynamics	n.	计算流体力学；CFD
+noise vibration harshness	n.	噪声、振动与声振粗糙度；NVH
+wind noise	n.	风噪
+road noise	n.	路噪
+powertrain	n.	动力总成
+battery pack	n.	动力电池包
+battery enclosure	n.	电池包壳体
+skateboard platform	n.	滑板式平台；底部集成电池和驱动等系统
+charging port	n.	充电接口
+charging flap	n.	充电口盖
+thermal management	n.	热管理
+front trunk	n.	前备厢
+cargo volume	n.	行李空间容积
+load floor	n.	行李厢装载地板
+load sill	n.	行李厢门槛
+split-folding seat	n.	分体折叠座椅
+power tailgate	n.	电动尾门
+rear wiper	n.	后雨刷
+parking sensor	n.	泊车传感器
+lidar	n.	激光雷达
+radar radome	n.	雷达罩；允许雷达波通过的保护外罩
+sensor integration	n.	传感器集成设计
+design freeze	n.	设计冻结；确定阶段设计基准
+feasibility review	n.	工程可行性评审
+digital mock-up	n.	数字样机；DMU
+virtual reality review	n.	虚拟现实设计评审
+perceived quality	n.	感知品质
+brand identity	n.	品牌识别特征
+family face	n.	家族化前脸
