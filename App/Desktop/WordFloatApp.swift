@@ -12,6 +12,7 @@ struct WordFloatApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate {
     var windows: WindowCoordinator?
     var mainWindow: NSWindow?
+    let libraryNavigation = LibraryNavigation()
     private var statusItem: NSStatusItem?
     private var toggleItem: NSMenuItem?
 
@@ -35,7 +36,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             main.isReleasedWhenClosed = false
             main.minSize = NSSize(width: 800, height: 610)
             main.delegate = self
-            main.contentView = NSHostingView(rootView: LibraryView(study: study, audio: audio, onReturn: { [weak self] in self?.showCard() }))
+            main.contentView = NSHostingView(rootView: LibraryView(study: study, audio: audio, appearance: appearance, navigation: libraryNavigation, onReturn: { [weak self] in self?.showCard() }))
             main.center()
             mainWindow = main
             installMenus()

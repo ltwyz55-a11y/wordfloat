@@ -6,6 +6,8 @@ private let inkAccent = Color(red: 0.23, green: 0.47, blue: 0.40)
 struct LibraryView: View {
     @ObservedObject var study: StudySession
     @ObservedObject var audio: Pronunciation
+    @ObservedObject var appearance: CardAppearance
+    @ObservedObject var navigation: LibraryNavigation
     var onReturn: () -> Void
     @State private var category: BookCategory?
     @State private var error: String?
@@ -17,6 +19,9 @@ struct LibraryView: View {
         HStack(spacing: 0) {
             sidebar
             Divider()
+            if navigation.showsAppearance {
+                AppearanceSettingsView(study: study, audio: audio, appearance: appearance, onReturn: onReturn)
+            } else {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -43,6 +48,7 @@ struct LibraryView: View {
                 }
                 currentPreview
             }.padding(28).frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .frame(minWidth: 800, minHeight: 580)
         .background(Color(nsColor: .windowBackgroundColor))
@@ -62,6 +68,14 @@ struct LibraryView: View {
             categoryButton("全部词本", icon: "square.grid.2x2", value: nil)
             categoryButton("考试词汇", icon: "graduationcap", value: .exam)
             categoryButton("专业领域", icon: "cube.transparent", value: .professional)
+            Divider().padding(.vertical, 10)
+            Button { navigation.showsAppearance = true } label: {
+                HStack(spacing: 10) { Image(systemName: "paintpalette").frame(width: 18); Text("卡片外观"); Spacer() }
+                    .font(.system(size: 13, weight: navigation.showsAppearance ? .medium : .regular))
+                    .padding(.horizontal, 12).padding(.vertical, 11)
+                    .background(navigation.showsAppearance ? inkAccent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 9))
+                    .foregroundStyle(navigation.showsAppearance ? inkAccent : Color.secondary)
+            }.buttonStyle(.plain)
             Spacer()
             VStack(alignment: .leading, spacing: 10) {
                 Text("发音").font(.system(size: 11)).foregroundStyle(.secondary)
@@ -79,12 +93,13 @@ struct LibraryView: View {
         .background(Color.primary.opacity(0.025))
     }
     private func categoryButton(_ title: String, icon: String, value: BookCategory?) -> some View {
-        Button { category = value } label: {
+        let selected = !navigation.showsAppearance && category == value
+        return Button { category = value; navigation.showsAppearance = false } label: {
             HStack(spacing: 10) { Image(systemName: icon).frame(width: 18); Text(title); Spacer() }
-                .font(.system(size: 13, weight: category == value ? .medium : .regular))
+                .font(.system(size: 13, weight: selected ? .medium : .regular))
                 .padding(.horizontal, 12).padding(.vertical, 11)
-                .background(category == value ? inkAccent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 9))
-                .foregroundStyle(category == value ? inkAccent : Color.secondary)
+                .background(selected ? inkAccent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 9))
+                .foregroundStyle(selected ? inkAccent : Color.secondary)
         }.buttonStyle(.plain)
     }
     private var currentPreview: some View {
