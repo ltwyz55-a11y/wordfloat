@@ -1,0 +1,393 @@
+word	pos	meaning
+material science	n.	材料科学
+material selection	n.	材料选择
+material property	n.	材料性能
+structure-property relationship	n.	结构与性能之间的关系
+microstructure	n.	显微组织
+macrostructure	n.	宏观组织
+phase	n.	相；成分与结构相对均一的区域
+phase diagram	n.	相图；描述平衡相态随条件变化的图
+phase transformation	n.	相变
+solid solution	n.	固溶体
+precipitate	n.	析出相
+inclusion	n.	夹杂物
+grain	n.	晶粒
+grain boundary	n.	晶界
+grain size	n.	晶粒尺寸
+crystal	n.	晶体
+crystal lattice	n.	晶格
+unit cell	n.	晶胞
+lattice parameter	n.	晶格常数
+body-centered cubic	n.	体心立方结构；BCC
+face-centered cubic	n.	面心立方结构；FCC
+hexagonal close-packed	n.	密排六方结构；HCP
+crystallinity	n.	结晶度
+amorphous structure	n.	非晶结构
+anisotropy	n.	各向异性
+isotropy	n.	各向同性
+texture	n.	织构；晶粒取向的统计分布
+preferred orientation	n.	择优取向
+point defect	n.	点缺陷
+vacancy	n.	空位
+interstitial atom	n.	间隙原子
+substitutional atom	n.	置换原子
+dislocation	n.	位错
+edge dislocation	n.	刃型位错
+screw dislocation	n.	螺型位错
+slip	n.	滑移
+twinning	n.	孪生
+stacking fault	n.	层错
+diffusion	n.	扩散
+self-diffusion	n.	自扩散
+interdiffusion	n.	互扩散
+nucleation	n.	形核
+grain growth	n.	晶粒长大
+recrystallization	n.	再结晶
+recovery	n.	回复；冷加工组织在加热中的部分恢复
+segregation	n.	偏析
+homogenization	n.	均匀化处理
+dendrite	n.	枝晶
+eutectic	n.	共晶
+eutectoid	n.	共析
+peritectic	n.	包晶
+solidus	n.	固相线
+liquidus	n.	液相线
+undercooling	n.	过冷
+metal	n.	金属
+alloy	n.	合金
+ferrous metal	n.	铁基金属材料
+nonferrous metal	n.	有色金属材料
+steel	n.	钢
+carbon steel	n.	碳钢
+low-carbon steel	n.	低碳钢
+medium-carbon steel	n.	中碳钢
+high-carbon steel	n.	高碳钢
+alloy steel	n.	合金钢
+stainless steel	n.	不锈钢
+austenitic stainless steel	n.	奥氏体不锈钢
+ferritic stainless steel	n.	铁素体不锈钢
+martensitic stainless steel	n.	马氏体不锈钢
+duplex stainless steel	n.	双相不锈钢
+tool steel	n.	工具钢
+high-speed steel	n.	高速钢
+spring steel	n.	弹簧钢
+weathering steel	n.	耐候钢
+high-strength low-alloy steel	n.	高强度低合金钢；HSLA
+advanced high-strength steel	n.	先进高强度钢；AHSS
+dual-phase steel	n.	双相钢；通常以铁素体与马氏体为主要组织
+cast iron	n.	铸铁
+gray cast iron	n.	灰铸铁
+ductile iron	n.	球墨铸铁
+white cast iron	n.	白口铸铁
+malleable iron	n.	可锻铸铁
+aluminum	n.	铝
+aluminum alloy	n.	铝合金
+magnesium	n.	镁
+magnesium alloy	n.	镁合金
+titanium	n.	钛
+titanium alloy	n.	钛合金
+copper	n.	铜
+brass	n.	黄铜；以铜锌为主要组分的合金
+bronze	n.	青铜
+nickel	n.	镍
+nickel alloy	n.	镍合金
+superalloy	n.	高温合金
+zinc	n.	锌
+zinc alloy	n.	锌合金
+tin	n.	锡
+lead	n.	铅
+tungsten	n.	钨
+molybdenum	n.	钼
+chromium	n.	铬
+cobalt	n.	钴
+manganese	n.	锰
+silicon	n.	硅
+ferrite	n.	铁素体
+austenite	n.	奥氏体
+martensite	n.	马氏体
+bainite	n.	贝氏体
+pearlite	n.	珠光体
+cementite	n.	渗碳体
+polymer	n.	聚合物
+monomer	n.	单体
+repeat unit	n.	重复单元
+polymer chain	n.	聚合物链
+molecular weight	n.	分子量
+molecular weight distribution	n.	分子量分布
+chain branching	n.	支化
+crosslinking	n.	交联
+chain entanglement	n.	分子链缠结
+copolymer	n.	共聚物
+homopolymer	n.	均聚物
+block copolymer	n.	嵌段共聚物
+graft copolymer	n.	接枝共聚物
+thermoplastic	n.	热塑性塑料
+thermoset	n.	热固性材料
+elastomer	n.	弹性体
+thermoplastic elastomer	n.	热塑性弹性体；TPE
+polyethylene	n.	聚乙烯；PE
+high-density polyethylene	n.	高密度聚乙烯；HDPE
+low-density polyethylene	n.	低密度聚乙烯；LDPE
+linear low-density polyethylene	n.	线性低密度聚乙烯；LLDPE
+polypropylene	n.	聚丙烯；PP
+polyvinyl chloride	n.	聚氯乙烯；PVC
+polystyrene	n.	聚苯乙烯；PS
+high-impact polystyrene	n.	高抗冲聚苯乙烯；HIPS
+acrylonitrile butadiene styrene	n.	丙烯腈-丁二烯-苯乙烯共聚物；ABS
+polycarbonate	n.	聚碳酸酯；PC
+polymethyl methacrylate	n.	聚甲基丙烯酸甲酯；PMMA，亚克力
+polyethylene terephthalate	n.	聚对苯二甲酸乙二醇酯；PET
+polybutylene terephthalate	n.	聚对苯二甲酸丁二醇酯；PBT
+polyamide	n.	聚酰胺；PA，尼龙
+polyoxymethylene	n.	聚甲醛；POM
+polyphenylene sulfide	n.	聚苯硫醚；PPS
+polyether ether ketone	n.	聚醚醚酮；PEEK
+polytetrafluoroethylene	n.	聚四氟乙烯；PTFE
+polyurethane	n.	聚氨酯；PU
+thermoplastic polyurethane	n.	热塑性聚氨酯；TPU
+silicone rubber	n.	硅橡胶
+natural rubber	n.	天然橡胶
+styrene-butadiene rubber	n.	丁苯橡胶；SBR
+nitrile rubber	n.	丁腈橡胶；NBR
+ethylene propylene diene rubber	n.	三元乙丙橡胶；EPDM
+fluoroelastomer	n.	氟橡胶
+butyl rubber	n.	丁基橡胶
+epoxy resin	n.	环氧树脂
+phenolic resin	n.	酚醛树脂
+polyester resin	n.	聚酯树脂
+vinyl ester resin	n.	乙烯基酯树脂
+polylactic acid	n.	聚乳酸；PLA
+polyhydroxyalkanoate	n.	聚羟基脂肪酸酯；PHA
+cellulose	n.	纤维素
+plasticizer	n.	增塑剂
+stabilizer	n.	稳定剂
+antioxidant	n.	抗氧化剂
+flame retardant	n.	阻燃剂
+pigment	n.	颜料
+filler	n.	填料
+reinforcement	n.	增强体
+coupling agent	n.	偶联剂
+compatibilizer	n.	相容剂
+curing agent	n.	固化剂
+blowing agent	n.	发泡剂
+ceramic	n.	陶瓷
+technical ceramic	n.	工程陶瓷
+alumina	n.	氧化铝
+zirconia	n.	氧化锆
+silicon carbide	n.	碳化硅
+silicon nitride	n.	氮化硅
+boron nitride	n.	氮化硼
+boron carbide	n.	碳化硼
+tungsten carbide	n.	碳化钨
+cemented carbide	n.	硬质合金
+porcelain	n.	瓷
+stoneware	n.	炻器
+earthenware	n.	陶器
+refractory	n.	耐火材料
+glass	n.	玻璃
+soda-lime glass	n.	钠钙玻璃
+borosilicate glass	n.	硼硅酸盐玻璃
+fused silica	n.	熔融石英
+tempered glass	n.	钢化玻璃
+laminated glass	n.	夹层玻璃
+glass-ceramic	n.	微晶玻璃
+composite	n.	复合材料
+matrix	n.	基体
+fiber	n.	纤维
+carbon fiber	n.	碳纤维
+glass fiber	n.	玻璃纤维
+aramid fiber	n.	芳纶纤维
+basalt fiber	n.	玄武岩纤维
+natural fiber	n.	天然纤维
+carbon fiber reinforced polymer	n.	碳纤维增强聚合物；CFRP
+glass fiber reinforced polymer	n.	玻璃纤维增强聚合物；GFRP
+metal matrix composite	n.	金属基复合材料；MMC
+ceramic matrix composite	n.	陶瓷基复合材料；CMC
+sandwich structure	n.	夹层结构
+honeycomb core	n.	蜂窝芯材
+foam core	n.	泡沫芯材
+laminate	n.	层合材料
+ply	n.	铺层；层合材料中的单层
+layup	n.	铺层方式或铺放过程
+fiber orientation	n.	纤维方向
+fiber volume fraction	n.	纤维体积分数
+unidirectional fabric	n.	单向织物
+woven fabric	n.	机织织物
+prepreg	n.	预浸料
+resin transfer molding	n.	树脂传递模塑；RTM
+vacuum infusion	n.	真空灌注
+autoclave curing	n.	热压罐固化
+pultrusion	n.	拉挤成型
+filament winding	n.	纤维缠绕
+hand layup	n.	手糊成型
+delamination	n.	分层；层间界面发生分离
+interfacial adhesion	n.	界面粘附
+wood	n.	木材
+hardwood	n.	阔叶树材；不直接代表硬度更高
+softwood	n.	针叶树材；不直接代表硬度更低
+plywood	n.	胶合板
+medium-density fiberboard	n.	中密度纤维板；MDF
+particleboard	n.	刨花板
+veneer	n.	木单板
+bamboo	n.	竹材
+cork	n.	软木
+leather	n.	皮革
+textile	n.	纺织材料
+felt	n.	毡
+nonwoven fabric	n.	非织造布
+density	n.	密度
+specific gravity	n.	相对密度
+porosity	n.	孔隙率
+open porosity	n.	开口孔隙率
+closed porosity	n.	闭口孔隙率
+stress	n.	应力
+strain	n.	应变
+engineering stress	n.	工程应力
+true stress	n.	真实应力
+elastic deformation	n.	弹性变形
+plastic deformation	n.	塑性变形
+Young's modulus	n.	杨氏模量；单轴弹性变形的刚度参数
+shear modulus	n.	剪切模量
+bulk modulus	n.	体积模量
+Poisson's ratio	n.	泊松比
+yield strength	n.	屈服强度
+tensile strength	n.	抗拉强度
+compressive strength	n.	抗压强度
+shear strength	n.	抗剪强度
+flexural strength	n.	弯曲强度
+elongation at break	n.	断裂伸长率
+reduction of area	n.	断面收缩率
+ductility	n.	延性
+malleability	n.	展性
+brittleness	n.	脆性
+toughness	n.	韧性
+fracture toughness	n.	断裂韧度
+impact strength	n.	冲击强度
+hardness	n.	硬度
+stiffness	n.	刚度
+resilience	n.	弹性储能能力
+creep	n.	蠕变；持续载荷下随时间发展的变形
+stress relaxation	n.	应力松弛；固定应变下应力随时间衰减
+fatigue	n.	疲劳；循环载荷引起的损伤过程
+fatigue limit	n.	疲劳极限
+fatigue life	n.	疲劳寿命
+fracture	n.	断裂
+crack initiation	n.	裂纹萌生
+crack propagation	n.	裂纹扩展
+notch sensitivity	n.	缺口敏感性
+wear	n.	磨损
+abrasion resistance	n.	耐磨耗性
+friction coefficient	n.	摩擦系数
+lubricity	n.	润滑性
+viscoelasticity	n.	粘弹性
+viscosity	n.	粘度
+rheology	n.	流变学
+thixotropy	n.	触变性
+thermal conductivity	n.	导热系数
+thermal diffusivity	n.	热扩散率
+specific heat capacity	n.	比热容
+thermal expansion	n.	热膨胀
+coefficient of thermal expansion	n.	热膨胀系数
+thermal shock resistance	n.	抗热震性
+melting point	n.	熔点
+glass transition temperature	n.	玻璃化转变温度；Tg
+heat deflection temperature	n.	热变形温度；HDT
+Vicat softening temperature	n.	维卡软化温度
+thermal stability	n.	热稳定性
+electrical conductivity	n.	电导率
+electrical resistivity	n.	电阻率
+dielectric constant	n.	介电常数
+dielectric strength	n.	介电强度
+magnetic permeability	n.	磁导率
+refractive index	n.	折射率
+light transmittance	n.	透光率
+haze	n.	雾度
+surface energy	n.	表面能
+contact angle	n.	接触角
+wettability	n.	润湿性
+hydrophobicity	n.	疏水性
+hydrophilicity	n.	亲水性
+water absorption	n.	吸水率
+moisture content	n.	含水率
+permeability	n.	渗透性
+chemical resistance	n.	耐化学性
+corrosion	n.	腐蚀
+galvanic corrosion	n.	电偶腐蚀
+pitting corrosion	n.	点蚀
+crevice corrosion	n.	缝隙腐蚀
+stress corrosion cracking	n.	应力腐蚀开裂
+oxidation	n.	氧化
+passivation	n.	钝化
+hydrolysis	n.	水解
+UV degradation	n.	紫外老化降解
+weathering	n.	自然环境老化
+biodegradation	n.	生物降解
+biocompatibility	n.	生物相容性
+annealing	n.	退火
+normalizing	n.	正火
+quenching	n.	淬火
+tempering	n.	回火
+solution treatment	n.	固溶处理
+age hardening	n.	时效硬化
+precipitation hardening	n.	析出强化
+work hardening	n.	加工硬化
+case hardening	n.	表面硬化
+carburizing	n.	渗碳
+nitriding	n.	渗氮
+hot working	n.	热加工
+cold working	n.	冷加工
+rolling	n.	轧制
+forging	n.	锻造
+extrusion	n.	挤压或挤出成形
+drawing	n.	拉拔
+casting	n.	铸造
+sintering	n.	烧结
+powder metallurgy	n.	粉末冶金
+hot isostatic pressing	n.	热等静压；HIP
+heat treatment	n.	热处理
+vulcanization	n.	硫化
+curing	n.	固化
+foaming	n.	发泡
+welding	n.	焊接
+brazing	n.	钎焊；使用较高熔点钎料的连接工艺
+soldering	n.	软钎焊
+adhesive bonding	n.	胶接
+surface treatment	n.	表面处理
+anodizing	n.	阳极氧化
+electroplating	n.	电镀
+conversion coating	n.	化学转化膜
+thermal spraying	n.	热喷涂
+chemical vapor deposition	n.	化学气相沉积；CVD
+physical vapor deposition	n.	物理气相沉积；PVD
+ion implantation	n.	离子注入
+shot peening	n.	喷丸强化
+tensile test	n.	拉伸试验
+compression test	n.	压缩试验
+three-point bending test	n.	三点弯曲试验
+Charpy impact test	n.	夏比冲击试验
+Izod impact test	n.	悬臂梁冲击试验
+Rockwell hardness	n.	洛氏硬度
+Brinell hardness	n.	布氏硬度
+Vickers hardness	n.	维氏硬度
+Shore hardness	n.	邵氏硬度
+scratch test	n.	划痕试验
+salt spray test	n.	盐雾试验
+differential scanning calorimetry	n.	差示扫描量热法；DSC
+thermogravimetric analysis	n.	热重分析；TGA
+dynamic mechanical analysis	n.	动态力学分析；DMA
+scanning electron microscopy	n.	扫描电子显微术；SEM
+transmission electron microscopy	n.	透射电子显微术；TEM
+optical microscopy	n.	光学显微术
+X-ray diffraction	n.	X射线衍射；XRD
+energy-dispersive spectroscopy	n.	能量色散谱分析；EDS
+Fourier-transform infrared spectroscopy	n.	傅里叶变换红外光谱；FTIR
+non-destructive testing	n.	无损检测；NDT
+ultrasonic testing	n.	超声检测
+radiographic testing	n.	射线检测
+dye penetrant testing	n.	渗透检测
+magnetic particle testing	n.	磁粉检测
+specimen	n.	试样
+conditioning	n.	状态调节；测试前使试样达到规定环境状态
+repeatability	n.	重复性
+reproducibility	n.	再现性
+measurement uncertainty	n.	测量不确定度
