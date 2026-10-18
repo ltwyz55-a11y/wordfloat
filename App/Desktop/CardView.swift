@@ -23,10 +23,13 @@ struct CardView: View {
                         .frame(maxWidth: .infinity)
                         .accessibilityLabel("单词：\(entry.word.spelling)")
                     if study.revealed {
-                        if !entry.word.phonetic.isEmpty {
-                            Text(entry.word.phonetic).font(.system(size: 12)).foregroundStyle(.secondary)
-                                .lineLimit(1).minimumScaleFactor(0.7)
-                        }
+                        HStack(spacing: 8) {
+                            if !entry.word.partOfSpeech.isEmpty {
+                                Text(entry.word.partOfSpeech).italic()
+                            }
+                            if !entry.word.phonetic.isEmpty { Text(entry.word.phonetic) }
+                        }.font(.system(size: 12)).foregroundStyle(.secondary)
+                            .lineLimit(1).minimumScaleFactor(0.7)
                         ScrollView(.vertical) {
                             Text(entry.meaning)
                                 .font(.system(size: 13)).lineSpacing(4)
