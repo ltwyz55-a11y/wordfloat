@@ -24,6 +24,9 @@ struct AppearanceSettingsView: View {
                     Text("选一种喜欢的样子。").font(.system(size: 13)).foregroundStyle(.secondary)
                 }
                 Spacer()
+                Button(action: chooseWallpaper) {
+                    Label(appearance.wallpaper == nil ? "图片壁纸…" : "更换图片…", systemImage: "photo")
+                }.controlSize(.large)
                 Button("悬浮学习", action: onReturn).buttonStyle(.borderedProminent).controlSize(.large)
             }
             ScrollView {
@@ -52,7 +55,6 @@ struct AppearanceSettingsView: View {
                     }
                     customization
                     HStack(spacing: 12) {
-                        Button(action: chooseWallpaper) { Label(appearance.wallpaper == nil ? "选择图片壁纸…" : "更换图片…", systemImage: "photo") }
                         if appearance.wallpaper != nil {
                             Button("移除图片") { appearance.removeWallpaper() }
                         }
