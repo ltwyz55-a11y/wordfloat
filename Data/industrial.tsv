@@ -1,0 +1,367 @@
+word	pos	meaning
+industrial design	n.	工业设计；围绕产品功能、形态与使用体验开展的设计
+product design	n.	产品设计
+user-centered design	n.	以用户为中心的设计
+human-centered design	n.	以人为中心的设计
+design thinking	n.	设计思维
+systems thinking	n.	系统思维；关注组成部分之间的联系
+inclusive design	n.	包容性设计；考虑不同能力和背景的使用者
+universal design	n.	通用设计；使尽可能多的人无需特别改造即可使用
+accessible design	n.	无障碍设计
+sustainable design	n.	可持续设计
+circular design	n.	循环设计；面向资源循环与重复使用的设计
+speculative design	n.	思辨设计；通过设计探讨可能的未来
+design brief	n.	设计任务书
+problem statement	n.	问题陈述
+design requirement	n.	设计要求
+functional requirement	n.	功能要求
+performance specification	n.	性能规格
+constraint	n.	设计约束
+stakeholder	n.	利益相关者
+value proposition	n.	价值主张
+target user	n.	目标用户
+user need	n.	用户需求
+pain point	n.	痛点；使用过程中突出的问题
+use case	n.	使用案例；特定目标下的使用情境
+usage scenario	n.	使用场景
+context of use	n.	使用情境；用户、任务和环境的组合
+user journey	n.	用户旅程
+journey map	n.	用户旅程图
+persona	n.	用户画像；基于研究形成的代表性用户描述
+empathy map	n.	共情图
+service blueprint	n.	服务蓝图
+customer experience	n.	顾客体验
+user experience	n.	用户体验
+usability	n.	可用性；完成任务的有效性、效率与满意程度
+usefulness	n.	有用性；产品是否满足实际需要
+utility	n.	效用；产品提供的功能价值
+user research	n.	用户研究
+field study	n.	实地研究
+contextual inquiry	n.	情境访谈；在实际使用环境中了解用户行为
+ethnographic research	n.	民族志研究；通过观察理解群体生活与行为
+interview guide	n.	访谈提纲
+semi-structured interview	n.	半结构化访谈
+focus group	n.	焦点小组访谈
+survey	n.	问卷调查
+questionnaire	n.	调查问卷
+observation	n.	观察研究
+shadowing	n.	跟随观察；持续跟随用户了解其活动
+diary study	n.	日记研究；用户连续记录经历和行为
+co-design	n.	共同设计；邀请相关参与者协作设计
+participatory design	n.	参与式设计
+workshop	n.	工作坊
+research synthesis	n.	研究信息综合
+insight	n.	洞察；从研究中提炼的关键理解
+affinity diagram	n.	亲和图；将相关信息分组整理
+competitive analysis	n.	竞品分析
+benchmarking	n.	标杆对比
+market segmentation	n.	市场细分
+opportunity area	n.	设计机会领域
+design direction	n.	设计方向
+concept generation	n.	概念生成
+ideation	n.	创意发散
+brainstorming	n.	头脑风暴
+mind map	n.	思维导图
+morphological chart	n.	形态分析表；组合不同功能解法以生成方案
+concept matrix	n.	概念矩阵
+concept selection	n.	概念筛选
+weighted decision matrix	n.	加权决策矩阵
+trade-off	n.	权衡；在相互制约的目标间作出取舍
+feasibility	n.	可行性
+desirability	n.	吸引力；方案对用户的需求价值
+viability	n.	可持续运营或商业实现的可行性
+design iteration	n.	设计迭代
+proof of concept	n.	概念验证
+minimum viable product	n.	最小可行产品；MVP
+prototype	n.	原型
+low-fidelity prototype	n.	低保真原型
+high-fidelity prototype	n.	高保真原型
+looks-like prototype	n.	外观原型
+works-like prototype	n.	功能原型
+mock-up	n.	模型；用于表达外观、尺寸或体验
+appearance model	n.	外观模型
+functional model	n.	功能模型
+foam model	n.	泡沫模型
+paper prototype	n.	纸面原型
+rapid prototyping	n.	快速原型制作
+breadboard	n.	实验搭建板或功能验证装置
+storyboard	n.	故事板
+wireframe	n.	线框图
+interaction flow	n.	交互流程
+usability test	n.	可用性测试
+think-aloud protocol	n.	出声思考法；请用户边操作边说明想法
+heuristic evaluation	n.	启发式评估
+A/B test	n.	A/B对比测试
+task success rate	n.	任务成功率
+time on task	n.	任务完成时间
+error rate	n.	错误率
+satisfaction rating	n.	满意度评分
+form	n.	形态
+function	n.	功能
+form language	n.	形态语言
+visual language	n.	视觉语言
+design language	n.	设计语言
+silhouette	n.	剪影轮廓
+profile	n.	侧面轮廓
+proportion	n.	比例
+scale	n.	尺度
+balance	n.	均衡
+symmetry	n.	对称
+asymmetry	n.	非对称
+rhythm	n.	节奏；元素重复与变化形成的视觉秩序
+hierarchy	n.	层级；信息或形态的重要性次序
+contrast	n.	对比
+unity	n.	统一性
+harmony	n.	协调性
+emphasis	n.	重点；视觉强调
+alignment	n.	对齐
+negative space	n.	负空间；实体或图形之间的留白
+positive space	n.	正空间；实体或图形占据的空间
+visual weight	n.	视觉重量
+focal point	n.	视觉焦点
+radius	n.	半径
+edge radius	n.	边缘圆角半径
+corner radius	n.	转角半径
+chamfer	n.	倒角
+fillet	n.	圆角过渡
+bevel	n.	斜切面
+contour	n.	轮廓
+curvature	n.	曲率
+convexity	n.	凸性；表面向外鼓起的形态
+concavity	n.	凹性；表面向内凹入的形态
+surface transition	n.	曲面过渡
+parting line	n.	分型线；模具分型处形成的界线
+seam	n.	接缝
+split line	n.	分割线；壳体或部件之间的分界线
+shadow gap	n.	阴影缝；利用间隙形成视觉分隔
+reveal	n.	显露间隙；相邻构件间可见的边缘或缝隙
+flush fit	n.	齐平配合
+recess	n.	凹槽或凹入区域
+boss	n.	柱台；用于安装、定位或加强的凸起结构
+rib	n.	加强筋
+web	n.	腹板；连接结构部位的薄壁
+flange	n.	凸缘或翻边
+lip	n.	唇边
+undercut	n.	倒扣；阻碍零件沿脱模方向退出的结构
+draft angle	n.	拔模角；便于脱模的侧壁倾角
+wall thickness	n.	壁厚
+uniform wall thickness	n.	均匀壁厚
+shell	n.	壳体
+housing	n.	外壳；容纳和保护内部组件的结构
+enclosure	n.	封装外壳
+bezel	n.	边框
+cover	n.	盖板
+lid	n.	上盖
+base	n.	底座
+foot	n.	支脚
+bumper	n.	缓冲垫或防撞部件
+gasket	n.	密封垫
+O-ring	n.	O形密封圈
+hinge	n.	铰链
+living hinge	n.	一体式柔性铰链
+latch	n.	锁闩
+snap-fit	n.	卡扣连接
+cantilever snap-fit	n.	悬臂式卡扣
+annular snap-fit	n.	环形卡扣
+press fit	n.	压入配合
+interference fit	n.	过盈配合
+clearance fit	n.	间隙配合
+transition fit	n.	过渡配合
+screw boss	n.	螺钉柱
+threaded insert	n.	螺纹嵌件
+self-tapping screw	n.	自攻螺钉
+fastener	n.	紧固件
+rivet	n.	铆钉
+washer	n.	垫圈
+retaining clip	n.	固定夹或卡簧
+adhesive joint	n.	胶接接头
+weld joint	n.	焊接接头
+assembly	n.	装配；或装配总成
+subassembly	n.	分总成
+exploded view	n.	爆炸图；分开呈现组件装配关系的视图
+bill of materials	n.	物料清单；BOM
+tolerance	n.	公差
+dimensional tolerance	n.	尺寸公差
+geometric tolerance	n.	几何公差
+datum	n.	基准；测量与几何定义的参考
+flatness	n.	平面度
+parallelism	n.	平行度
+perpendicularity	n.	垂直度
+concentricity	n.	同心度
+runout	n.	跳动
+surface roughness	n.	表面粗糙度
+surface finish	n.	表面加工状态或饰面
+ergonomics	n.	人机工学
+anthropometry	n.	人体测量学
+percentile	n.	百分位数；描述人体尺寸分布的位置
+reach envelope	n.	可触及范围包络
+grip	n.	握持方式或握持区域
+power grip	n.	力量握持；以手掌和手指包握物体
+precision grip	n.	精细握持；以指尖控制物体
+pinch grip	n.	捏握
+handle diameter	n.	手柄直径
+grip span	n.	握距
+contact pressure	n.	接触压力
+pressure point	n.	局部受压点
+neutral posture	n.	中立姿势；关节受力相对自然的姿态
+wrist deviation	n.	手腕偏转
+repetitive strain	n.	重复动作造成的劳损
+fatigue	n.	疲劳
+comfort	n.	舒适性
+adjustability	n.	可调节性
+handedness	n.	惯用手差异
+ambidextrous design	n.	左右手均可使用的设计
+force requirement	n.	操作力要求
+actuation force	n.	触发或驱动力
+operating torque	n.	操作扭矩
+tactile feedback	n.	触觉反馈
+haptic feedback	n.	力觉或触觉反馈
+affordance	n.	可供性；物体为使用者提供的行动可能
+signifier	n.	指示符；提示操作方式的可感知线索
+mapping	n.	映射；控制操作与结果之间的对应关系
+feedback	n.	反馈；向用户呈现操作结果
+feedforward	n.	前馈提示；操作前提示可能发生的结果
+mental model	n.	心智模型；用户对系统工作方式的理解
+cognitive load	n.	认知负荷
+error prevention	n.	错误预防
+error recovery	n.	错误恢复
+visibility	n.	可见性；状态与操作入口易于察觉的程度
+discoverability	n.	可发现性
+learnability	n.	易学性
+consistency	n.	一致性
+control-display compatibility	n.	控制与显示相容性
+button travel	n.	按键行程
+detent	n.	定位阻尼点；旋转或滑动中的停驻手感
+knurling	n.	滚花；表面规则凸纹
+texture	n.	纹理或质感
+color palette	n.	配色方案
+hue	n.	色相
+saturation	n.	饱和度
+lightness	n.	明度
+chroma	n.	彩度
+color temperature	n.	色温
+color harmony	n.	色彩协调
+color contrast	n.	色彩对比
+color matching	n.	配色匹配
+color difference	n.	色差
+metamerism	n.	同色异谱；不同光源下颜色匹配关系改变
+gloss	n.	光泽
+matte	n.	哑光效果
+satin finish	n.	缎面效果
+translucency	n.	半透明性
+transparency	n.	透明性
+opacity	n.	不透明性
+soft-touch finish	n.	软触感饰面
+anodizing	n.	阳极氧化
+powder coating	n.	粉末涂装
+electroplating	n.	电镀
+physical vapor deposition	n.	物理气相沉积；PVD
+screen printing	n.	丝网印刷
+pad printing	n.	移印
+laser engraving	n.	激光雕刻
+embossing	n.	压凸
+debossing	n.	压凹
+hot stamping	n.	热烫印
+in-mold decoration	n.	模内装饰；IMD
+in-mold labeling	n.	模内贴标；IML
+water transfer printing	n.	水转印
+brushing	n.	拉丝处理
+sandblasting	n.	喷砂
+bead blasting	n.	喷丸状介质处理；常用于形成均匀哑光表面
+polishing	n.	抛光
+injection molding	n.	注塑成型
+overmolding	n.	包覆成型
+insert molding	n.	嵌件注塑
+two-shot molding	n.	双色或双料注塑
+blow molding	n.	吹塑成型
+rotational molding	n.	滚塑成型
+thermoforming	n.	热成型
+vacuum forming	n.	真空吸塑
+compression molding	n.	压缩模塑
+extrusion	n.	挤出成型
+die casting	n.	压铸
+sand casting	n.	砂型铸造
+investment casting	n.	熔模铸造
+forging	n.	锻造
+sheet metal forming	n.	钣金成形
+bending	n.	折弯
+stamping	n.	冲压
+spinning	n.	旋压
+CNC machining	n.	计算机数控加工
+milling	n.	铣削
+turning	n.	车削
+drilling	n.	钻削
+tapping	n.	攻丝
+laser cutting	n.	激光切割
+waterjet cutting	n.	水刀切割
+electrical discharge machining	n.	电火花加工；EDM
+additive manufacturing	n.	增材制造
+fused deposition modeling	n.	熔融沉积成型；FDM
+stereolithography	n.	立体光固化；SLA
+selective laser sintering	n.	选择性激光烧结；SLS
+support structure	n.	支撑结构；增材制造中的临时支撑
+build orientation	n.	打印或成型方向
+layer height	n.	打印层高
+infill	n.	填充结构；打印件内部的填充模式
+post-processing	n.	后处理
+tooling	n.	工装；或模具及制造工具的统称
+mold cavity	n.	模腔
+mold core	n.	模芯
+gate	n.	浇口
+runner	n.	流道
+ejector pin	n.	顶针
+sink mark	n.	缩痕
+weld line	n.	熔接痕
+flash	n.	飞边
+warpage	n.	翘曲
+short shot	n.	缺料；注塑未充满
+flow mark	n.	流痕
+shrinkage	n.	收缩
+cycle time	n.	生产周期时间
+lead time	n.	交付前置时间
+minimum order quantity	n.	最小订货量
+unit cost	n.	单位成本
+non-recurring engineering cost	n.	一次性工程开发费用；NRE
+design for manufacturing	n.	面向制造的设计；DFM
+design for assembly	n.	面向装配的设计；DFA
+design for disassembly	n.	面向拆解的设计
+design for repair	n.	面向维修的设计
+modularity	n.	模块化
+standardization	n.	标准化
+part count reduction	n.	减少零件数量
+quality control	n.	质量控制
+quality assurance	n.	质量保证
+failure mode and effects analysis	n.	失效模式与影响分析；FMEA
+root cause analysis	n.	根因分析
+reliability	n.	可靠性
+durability	n.	耐久性
+maintainability	n.	可维护性
+service life	n.	使用寿命
+drop test	n.	跌落测试
+vibration test	n.	振动测试
+ingress protection	n.	外壳防护；针对固体异物与水的侵入
+life cycle assessment	n.	生命周期评价；LCA
+carbon footprint	n.	碳足迹
+embodied energy	n.	隐含能耗；材料和产品生产阶段消耗的能量
+recyclability	n.	可回收性
+repairability	n.	可维修性
+reuse	n.	再使用
+remanufacturing	n.	再制造
+disassembly sequence	n.	拆解顺序
+material separation	n.	材料分离
+mono-material design	n.	单一材料设计
+packaging design	n.	包装设计
+protective packaging	n.	防护包装
+flat-pack design	n.	平板包装设计
+nesting	n.	套叠；通过形体嵌套节约空间
+stackability	n.	可堆叠性
+product architecture	n.	产品架构；功能与部件的组织方式
+design review	n.	设计评审
+engineering change	n.	工程变更
+revision control	n.	版本控制
+technical drawing	n.	工程图
+parametric modeling	n.	参数化建模
+solid modeling	n.	实体建模
+surface modeling	n.	曲面建模
+finite element analysis	n.	有限元分析；FEA
+topology optimization	n.	拓扑优化
