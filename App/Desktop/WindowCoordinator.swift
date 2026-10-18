@@ -16,6 +16,7 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     private let defaults: UserDefaults
     private var subscriptions: Set<AnyCancellable> = []
     private var screenObserver: NSObjectProtocol?
+    private var events: CardEventHandler?
     var openLibrary: (() -> Void)?
 
     init(study: StudySession, audio: Pronunciation, defaults: UserDefaults = .standard) {
@@ -49,7 +50,8 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
         screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.restoreVisibility() }
         }
-        study.willChangeWord = { [weak audio] in audio?.stop() }
+        events = CardEventHandler(panel: panel, study: study, audio: audio, openLibrary: { [weak self] in self?.openLibrary?() })
+        study.willChangeWord = { [weak self] in self?.events?.cancel(); self?.audio.stop() }
     }
     deinit { if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) } }
     private var screenFrames: [CGRect] {
@@ -58,7 +60,7 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     }
     func restoreVisibility() { panel.setFrame(WindowPlacement.clamp(panel.frame, to: screenFrames), display: true) }
     func showCard() { restoreVisibility(); panel.orderFrontRegardless() }
-    func hideCard() { panel.orderOut(nil); audio.stop() }
+    func hideCard() { events?.cancel(); panel.orderOut(nil); audio.stop() }
     func windowDidMove(_ notification: Notification) {
         let point = panel.frame.origin
         defaults.set([point.x, point.y], forKey: "panel.origin")
