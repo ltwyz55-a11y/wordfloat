@@ -34,13 +34,18 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
         panel.hasShadow = true
         panel.isReleasedWhenClosed = false
         panel.delegate = self
-        panel.contentView = NSHostingView(rootView: CardView(study: study, audio: audio, onOpenLibrary: { [weak self] in self?.openLibrary?() }))
+        let hostingView = NSHostingView(rootView: CardView(study: study, audio: audio, onOpenLibrary: { [weak self] in self?.openLibrary?() }))
+        // The coordinator owns the panel size; do not derive window constraints from SwiftUI.
+        hostingView.sizingOptions = []
+        panel.contentView = hostingView
         let screen = NSScreen.main?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)
         let saved = defaults.array(forKey: "panel.origin") as? [Double]
         let origin = saved?.count == 2 ? CGPoint(x: saved![0], y: saved![1]) : CGPoint(x: screen.maxX - 292, y: screen.maxY - 190)
         panel.setFrameOrigin(origin)
         restoreVisibility()
-        study.$revealed.removeDuplicates().sink { [weak self] revealed in
+        // @Published emits before the property changes. Resize on the next main-queue
+        // turn so the hosting view sees the new state instead of restoring the old height.
+        study.$revealed.removeDuplicates().receive(on: DispatchQueue.main).sink { [weak self] revealed in
             guard let self else { return }
             let height: CGFloat = revealed ? 220 : 150
             let previous = self.panel.frame

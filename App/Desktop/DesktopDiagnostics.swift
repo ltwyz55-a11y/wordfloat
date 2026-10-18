@@ -63,6 +63,19 @@ enum DesktopDiagnostics {
         panel.appearance = NSAppearance(named: .darkAqua)
         await pause()
         try capture(panel, to: folder.appendingPathComponent("card-dark.png"))
+        // Click directly on the Chinese definition, then assert the native frame shrinks.
+        let meaningPoint = CGPoint(x: 130, y: 110)
+        let spokenBeforeCollapse = engine.spoken.count
+        post(.leftMouseDown, panel: panel, point: meaningPoint)
+        post(.leftMouseUp, panel: panel, point: meaningPoint)
+        await pause(NSEvent.doubleClickInterval + 0.3)
+        try require(!study.revealed, "definition click hides meaning")
+        try require(panel.frame.size == CGSize(width: 260, height: 150), "definition click restores minimum card size (frame: \(panel.frame), minimum: \(panel.minSize), content minimum: \(panel.contentMinSize), content: \(String(describing: panel.contentView?.frame)))")
+        try require(engine.spoken.count == spokenBeforeCollapse, "collapse does not repeat speech")
+        try capture(panel, to: folder.appendingPathComponent("card-collapsed-again.png"))
+        click(panel)
+        await pause(NSEvent.doubleClickInterval + 0.3)
+        try require(study.revealed && panel.frame.height == 220, "card expands again after collapse")
         let speechCount = engine.spoken.count
         click(panel, count:1)
         await pause(0.04)
@@ -99,7 +112,7 @@ enum DesktopDiagnostics {
         try require(panel.isVisible && !main.isVisible, "closing main window returns to card")
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
-            "checks":["native-window-visibility","nonactivating-panel","single-click","double-click-cancellation","mouse-swipe","close-to-card","light-and-dark-previews"],
+            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","close-to-card","light-and-dark-previews"],
             "installedEnglishVoices":SystemSpeechEngine().voices.filter { $0.language.hasPrefix("en") }.map(\.language),
             "notVerified":["physical-trackpad", "physical-audio-output", "full-screen-other-apps", "physical-multiple-monitors"]]
         try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys]).write(to:folder.appendingPathComponent("desktop-checks.json"))
