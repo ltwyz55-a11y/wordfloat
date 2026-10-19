@@ -62,9 +62,11 @@ internal static partial class Program
                 Require(repaired.Books().Count == 9, "Repair failed");
             });
             RunStudyChecks(store, temporary);
+            RunAppearanceChecks(temporary);
             Console.WriteLine($"WINDOWS_CORE_CHECKS_PASSED: {passed}");
         }
         finally { Directory.Delete(temporary, true); }
     }
     static partial void RunStudyChecks(VocabularyStore store, string temporary);
+    static partial void RunAppearanceChecks(string temporary);
 }

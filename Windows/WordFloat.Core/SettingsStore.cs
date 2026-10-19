@@ -13,6 +13,7 @@ public sealed class AppSettings
     public double? CardLeft { get; set; }
     public double? CardTop { get; set; }
     public bool HasLaunched { get; set; }
+    public CardStyle Appearance { get; set; } = new();
 }
 public sealed class SettingsStore
 {
