@@ -14,5 +14,8 @@
     <ProjectReference Include="../WordFloat.Core/WordFloat.Core.csproj" />
     <PackageReference Include="System.Speech" Version="10.0.13" />
     <EmbeddedResource Include="Assets/AppIcon.ico" LogicalName="WordFloat.Icon" />
+    <EmbeddedResource Include="../../DATA-NOTICE.md" LogicalName="WordFloat.Notice.Dictionary" />
+    <EmbeddedResource Include="../../Data/ECDICT-LICENSE.txt" LogicalName="WordFloat.Notice.ECDICT-License" />
+    <EmbeddedResource Include="../Licenses/*.txt" LogicalName="WordFloat.Notice.%(Filename)" />
   </ItemGroup>
 </Project>
