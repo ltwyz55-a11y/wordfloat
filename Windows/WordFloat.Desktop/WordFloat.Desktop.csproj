@@ -8,9 +8,11 @@
     <AssemblyName>WordFloat</AssemblyName>
     <Version>1.0.0</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../WordFloat.Core/WordFloat.Core.csproj" />
     <PackageReference Include="System.Speech" Version="10.0.13" />
+    <EmbeddedResource Include="Assets/AppIcon.ico" LogicalName="WordFloat.Icon" />
   </ItemGroup>
 </Project>
