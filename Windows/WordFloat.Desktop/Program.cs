@@ -13,6 +13,7 @@ internal static class Program
     {
         try
         {
+            if(Installer.Handle(args) is int installerResult)return installerResult;
             using var instance=new SingleInstance();
             if(!instance.IsPrimary)
             {

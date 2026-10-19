@@ -16,7 +16,7 @@ internal sealed class NativeSqlite : IDisposable
     private static IntPtr ResolveLibrary(string name, Assembly assembly, DllImportSearchPath? path)
     {
         if (name != "wordfloat_sqlite") return IntPtr.Zero;
-        return NativeLibrary.Load(OperatingSystem.IsWindows() ? "winsqlite3.dll" : OperatingSystem.IsMacOS() ? "/usr/lib/libsqlite3.dylib" : "libsqlite3.so.0");
+        return NativeLibrary.Load(OperatingSystem.IsWindows() ? System.IO.Path.Combine(Environment.SystemDirectory,"winsqlite3.dll") : OperatingSystem.IsMacOS() ? "/usr/lib/libsqlite3.dylib" : "libsqlite3.so.0");
     }
     public NativeSqlite(string path)
     {
