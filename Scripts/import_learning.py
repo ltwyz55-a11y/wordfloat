@@ -61,7 +61,9 @@ def wiki_import(paths, output):
                     labels=sense.get('raw_tags',[])+[TAGS[t] for t in sense.get('tags',[]) if t in TAGS]
                     if labels: gloss='（'+'、'.join(dict.fromkeys(labels))+'）'+gloss if gloss else ''
                     if gloss: add_unique(detail['senses'],dict(partOfSpeech=POS.get(row['pos'],row['pos']),text=gloss,sourceURL=url))
-                    for example in sense.get('examples',[]):
+                    # Preserve old senses, but don't teach their examples as everyday usage.
+                    examples = [] if {'obsolete','archaic'} & set(sense.get('tags',[])) else sense.get('examples',[])
+                    for example in examples:
                         en=example.get('text','').strip(); zh=example.get('translation','').strip()
                         # Use dictionary usage examples, not third-party book/news quotations.
                         if en and zh and not example.get('ref') and len(en)<=300 and re.search('[\u3400-\u9fff]',zh):
@@ -93,6 +95,8 @@ def tatoeba_import(path,words,details):
     with zipfile.ZipFile(path) as archive:
         for line in archive.read('cmn.txt').decode('utf-8').splitlines():
             en,zh,attribution=line.split('\t'); rows+=1
+            # Known mistranslation in this snapshot: lake was translated as river.
+            if en == 'The old church by the lake is very beautiful.' and '河边' in zh: continue
             parts=tokens(en)
             if not 3<=len(parts)<=30 or len(en)>240: continue
             ids=re.findall(r'#(\d+)',attribution)

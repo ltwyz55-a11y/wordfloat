@@ -17,6 +17,10 @@ class LearningImportTests(unittest.TestCase):
             self.assertEqual(len(details['design']['senses']),1)
             self.assertIn('含义一；含义二',details['design']['senses'][0]['text'])
             self.assertEqual(len(details['design']['etymologies']),1)
+            self.assertEqual(len(details['design']['examples']),0)
+            row['senses'][0]['tags']=[]
+            path.write_text(json.dumps(row)+'\n')
+            wiki_import([path],details)
             self.assertEqual(len(details['design']['examples']),1)
             path.write_text('{"word":')
             with self.assertRaises(ValueError):wiki_import([path],details)
