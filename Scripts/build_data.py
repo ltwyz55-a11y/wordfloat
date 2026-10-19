@@ -35,6 +35,19 @@ def build():
                 db.execute('INSERT OR IGNORE INTO words VALUES (?,?,\'\',?,?,NULL)', (wordid,spelling,row['pos'],meaning))
                 db.execute('INSERT INTO entries VALUES (?,?,?,?)', (key,wordid,meaning,i))
             counts[key] = len(rows)
+        learning = json.loads((ROOT/'Data/learning-details.json').read_text())
+        assert learning['formatVersion'] == 1
+        assert set(learning['words']) == {r[0] for r in db.execute('SELECT id FROM words')}
+        for word_id, detail in sorted(learning['words'].items()):
+            assert set(detail) == {'dictionaryMeaning','englishDefinition','senses','etymologies','examples','forms'}
+            assert len({e['id'] for e in detail['examples']}) == len(detail['examples'])
+            for example in detail['examples']:
+                assert example['english'].strip() and example['chinese'].strip()
+                assert example['attribution'] and example['sourceURL'].startswith('https://')
+            for item in detail['senses'] + detail['etymologies']:
+                assert item['text'].strip() and item['sourceURL'].startswith('https://')
+            db.execute('INSERT INTO learning_details VALUES (?,?)',
+                (word_id,json.dumps(detail,ensure_ascii=False,sort_keys=True)))
         assert db.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
         assert not db.execute('PRAGMA foreign_key_check').fetchall()
         actual = dict(db.execute('SELECT book_id,count(*) FROM entries GROUP BY book_id'))

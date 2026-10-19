@@ -2,6 +2,23 @@ import XCTest
 @testable import WordCore
 
 final class LearningDetailsTests: XCTestCase {
+    func testBundledLearningContentPreservesFullMeaningsAndAttribution() throws {
+        let store = try VocabularyStore.bundled()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let source = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("Data/learning-details.json"))) as! [String: Any]
+        let words = source["words"] as! [String: Any]
+        XCTAssertEqual(words.count, 12304)
+        for (id, raw) in words {
+            let expected = try JSONDecoder().decode(LearningDetails.self, from: JSONSerialization.data(withJSONObject: raw))
+            XCTAssertEqual(try store.learningDetails(wordID: id), expected, id)
+        }
+        let photograph = try store.learningDetails(wordID: "photograph")
+        XCTAssertTrue(photograph.etymologies.contains { $0.text.contains("photo-") })
+        let happy = try store.learningDetails(wordID: "happy")
+        XCTAssertFalse(happy.examples.isEmpty)
+        XCTAssertTrue(happy.examples.allSatisfy { !$0.attribution.isEmpty && !$0.chinese.isEmpty })
+    }
+
     func testCompleteLearningDataRoundTripAndMissingEntry() throws {
         let store = try VocabularyStore(path: ":memory:", readOnly: false)
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
