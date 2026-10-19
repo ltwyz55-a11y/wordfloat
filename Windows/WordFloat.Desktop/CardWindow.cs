@@ -49,6 +49,7 @@ internal sealed class CardWindow : Window
         body.PreviewMouseMove += PointerMove;
         body.PreviewMouseLeftButtonUp += PointerUp;
         body.PreviewMouseWheel += (_,_)=>CancelInteraction();
+        PreviewMouseLeftButtonDown += (_,e)=>{if(UI.IsControlTarget(e.OriginalSource as DependencyObject))CancelInteraction();};
         MouseEnter += (_,_)=>{previous.Opacity=0.65;next.Opacity=0.65;};
         MouseLeave += (_,_)=>{previous.Opacity=0;next.Opacity=0;};
         clickTimer.Interval=TimeSpan.FromMilliseconds(NativeWindow.DoubleClickMilliseconds);
@@ -135,6 +136,8 @@ internal sealed class CardWindow : Window
     }
     private void HorizontalScroll(double delta)
     {
+        var point=Mouse.GetPosition(body);
+        if(point.X<0||point.Y<0||point.X>body.ActualWidth||point.Y>body.ActualHeight)return;
         CancelInteraction();
         if(wheel.Consume(delta,Environment.TickCount64/1000.0) is int direction)study.Advance(direction);
     }
