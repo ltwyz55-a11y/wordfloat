@@ -28,7 +28,14 @@ final class CardEventHandler {
         let content = point.y >= 36 && point.y < panel.frame.height - 24
         switch event.type {
         case .leftMouseDown:
-            pendingClick?.cancel()
+            cancel()
+            if let root = panel.contentView {
+                var hit = root.hitTest(root.convert(point, from: nil))
+                while let view = hit {
+                    if view is NSControl { return event }
+                    hit = view.superview
+                }
+            }
             tracking = content
             if content { pointer.begin(at: point); return nil }
         case .leftMouseDragged:
@@ -41,6 +48,7 @@ final class CardEventHandler {
             }
         case .scrollWheel:
             guard content else { return event }
+            cancel()
             let horizontal = abs(event.scrollingDeltaX) > abs(event.scrollingDeltaY)
             if let delta = scrolling.consume(dx: event.scrollingDeltaX, dy: event.scrollingDeltaY,
                 time: event.timestamp, begins: event.phase.contains(.began), momentum: !event.momentumPhase.isEmpty,
