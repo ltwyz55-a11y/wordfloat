@@ -31,4 +31,20 @@ final class PronunciationTests: XCTestCase {
         XCTAssertEqual(engine.events.last, "stop")
         XCTAssertTrue(audio.message?.contains("下载") == true)
     }
+    func testBilingualQueueAndChineseNeverUsesEnglishVoice() {
+        let engine = Engine()
+        engine.voices.append(SpeechVoice(id: "zh", language: "zh-CN"))
+        let audio = Pronunciation(engine: engine)
+        audio.speakExample(english: "I like this design.", chinese: "我喜欢这个设计。")
+        XCTAssertEqual(engine.events, ["stop", "us:I like this design.", "zh:我喜欢这个设计。"])
+        audio.speak("下一句", language: .chinese)
+        XCTAssertEqual(Array(engine.events.suffix(2)), ["stop", "zh:下一句"])
+        engine.voices.removeAll { $0.language.hasPrefix("zh") }
+        audio.speak("不能用英语读", language: .chinese)
+        XCTAssertEqual(engine.events.last, "stop")
+        XCTAssertTrue(audio.message?.contains("中文") == true)
+        audio.speakExample(english: "Next sentence.", chinese: "下一句。")
+        XCTAssertEqual(Array(engine.events.suffix(2)), ["stop", "us:Next sentence."])
+        XCTAssertTrue(audio.message?.contains("已跳过") == true)
+    }
 }
