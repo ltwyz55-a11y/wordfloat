@@ -11,5 +11,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../WordFloat.Core/WordFloat.Core.csproj" />
+    <PackageReference Include="System.Speech" Version="10.0.13" />
   </ItemGroup>
 </Project>

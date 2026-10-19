@@ -64,6 +64,7 @@ internal static partial class Program
             RunStudyChecks(store, temporary);
             RunAppearanceChecks(temporary);
             RunInteractionChecks();
+            RunSpeechChecks(temporary);
             Console.WriteLine($"WINDOWS_CORE_CHECKS_PASSED: {passed}");
         }
         finally { Directory.Delete(temporary, true); }
@@ -71,4 +72,5 @@ internal static partial class Program
     static partial void RunStudyChecks(VocabularyStore store, string temporary);
     static partial void RunAppearanceChecks(string temporary);
     static partial void RunInteractionChecks();
+    static partial void RunSpeechChecks(string temporary);
 }
