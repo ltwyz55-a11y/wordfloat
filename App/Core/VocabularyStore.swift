@@ -79,4 +79,12 @@ public final class VocabularyStore {
             return BookEntry(bookID: bookID, word: word, domainMeaning: sqlite3_column_type(row, 6) == SQLITE_NULL ? nil : text(row, 6), position: Int(sqlite3_column_int(row, 7)))
         }
     }
+    public func learningDetails(wordID: String) throws -> LearningDetails {
+        try query("SELECT payload FROM learning_details WHERE word_id=?", [wordID]) { row in
+            guard let data = text(row, 0).data(using: .utf8) else {
+                throw StoreError(message: "学习资料格式错误")
+            }
+            return try JSONDecoder().decode(LearningDetails.self, from: data)
+        }.first ?? LearningDetails()
+    }
 }

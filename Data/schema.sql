@@ -13,4 +13,7 @@ CREATE TABLE entries (
  PRIMARY KEY(book_id, word_id), UNIQUE(book_id, position)
 );
 CREATE INDEX entries_order ON entries(book_id, position);
-PRAGMA user_version = 1;
+CREATE TABLE learning_details (
+ word_id TEXT PRIMARY KEY REFERENCES words(id), payload TEXT NOT NULL
+);
+PRAGMA user_version = 2;
