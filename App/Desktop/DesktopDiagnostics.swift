@@ -9,9 +9,10 @@ struct DiagnosticError: LocalizedError {
 
 @MainActor
 final class DiagnosticSpeechEngine: SpeechEngine {
-    var voices = [SpeechVoice(id: "test-us", language: "en-US")]
+    var voices = [SpeechVoice(id: "test-us", language: "en-US"), SpeechVoice(id: "test-zh", language: "zh-CN")]
     var spoken: [String] = []
-    func stop() {}
+    var stops = 0
+    func stop() { stops += 1 }
     func speak(_ text: String, voiceID: String) { spoken.append(text) }
 }
 
@@ -110,10 +111,11 @@ enum DesktopDiagnostics {
         try capture(main,to:folder.appendingPathComponent("library-compact.png"))
         app.showCard()
         try require(panel.isVisible && !main.isVisible, "floating study action returns to card")
+        try await checkLearning(windows: windows, engine: engine, folder: folder)
         try await checkAppearance(app: app, folder: folder)
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
-            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact"],
+            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact","scrollable-learning-details","inline-English-Chinese-pair-buttons","scroll-reset-on-word-change","example-speech-stops-on-word-change","collapse-after-scrolling"],
             "installedEnglishVoices":SystemSpeechEngine().voices.filter { $0.language.hasPrefix("en") }.map(\.language),
             "notVerified":["physical-trackpad", "physical-audio-output", "full-screen-other-apps", "physical-multiple-monitors"]]
         // Exercise the native close-button path and only record success during actual termination.
@@ -135,6 +137,72 @@ enum DesktopDiagnostics {
         main.performClose(nil)
         await pause(0.5)
         throw DiagnosticError(message: "Closing the main window did not terminate the application")
+    }
+
+    private static func descendants(_ view: NSView) -> [NSView] {
+        [view] + view.subviews.flatMap { descendants($0) }
+    }
+
+    private static func checkLearning(windows: WindowCoordinator, engine: DiagnosticSpeechEngine, folder: URL) async throws {
+        let study = windows.study, panel = windows.panel
+        try study.selectBook("cet4")
+        guard let entry = study.entries.first(where: { $0.word.id == "photograph" }) else {
+            throw DiagnosticError(message: "Missing learning fixture")
+        }
+        study.jump(to: entry)
+        study.revealed = true
+        await pause(0.4)
+        let details = try study.store.learningDetails(wordID: entry.word.id)
+        guard let root = panel.contentView,
+              let scroll = descendants(root).compactMap({ $0 as? NSScrollView }).first,
+              let document = scroll.documentView, let example = details.examples.first else {
+            throw DiagnosticError(message: "Missing scrollable learning content")
+        }
+        try require(document.frame.height > scroll.contentView.bounds.height * 3, "long details are laid out beyond viewport")
+        let originalIndex = study.index
+        if let cg = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: -140, wheel2: 0, wheel3: 0),
+           let event = NSEvent(cgEvent: cg) { scroll.scrollWheel(with: event) }
+        await pause()
+        try require(scroll.contentView.bounds.origin.y > 0 && study.index == originalIndex && study.revealed, "vertical wheel scrolls details without changing word")
+        try capture(panel, to: folder.appendingPathComponent("learning-roots.png"))
+        for (kind, expected) in [("english", [example.english]), ("chinese", [example.chinese]), ("pair", [example.english, example.chinese])] {
+            let id = "example.\(kind).\(example.id)"
+            guard let button = descendants(root).compactMap({ $0 as? NSButton }).first(where: { $0.identifier?.rawValue == id }) else {
+                throw DiagnosticError(message: "Missing inline button: \(id)")
+            }
+            button.scrollToVisible(button.bounds.insetBy(dx: 0, dy: -70))
+            await pause()
+            let rect = button.convert(button.bounds, to: nil)
+            let point = CGPoint(x: rect.midX, y: rect.midY)
+            try require(point.y > 36 && point.y < panel.frame.height - 24, "inline button inside viewport")
+            let before = engine.spoken.count, stops = engine.stops
+            post(.leftMouseDown, panel: panel, point: point)
+            post(.leftMouseUp, panel: panel, point: point)
+            await pause(NSEvent.doubleClickInterval + 0.2)
+            try require(Array(engine.spoken.dropFirst(before)) == expected, "inline \(kind) speech sequence")
+            try require(engine.stops > stops && study.revealed && study.index == originalIndex, "inline playback cancels old speech without collapsing or flipping")
+        }
+        try capture(panel, to: folder.appendingPathComponent("learning-examples-light.png"))
+        panel.appearance = NSAppearance(named: .darkAqua)
+        await pause()
+        try capture(panel, to: folder.appendingPathComponent("learning-examples-dark.png"))
+        // Text remains a collapse target even deep within the details.
+        scroll.contentView.scroll(to: CGPoint(x: 0, y: 0))
+        scroll.reflectScrolledClipView(scroll.contentView)
+        await pause()
+        click(panel)
+        await pause(NSEvent.doubleClickInterval + 0.2)
+        try require(!study.revealed && panel.frame.height == 150, "collapse after scrolling")
+        study.revealed = true
+        await pause()
+        let stops = engine.stops
+        study.advance(1)
+        await pause()
+        try require(!study.revealed && engine.stops > stops, "word change stops example speech")
+        study.revealed = true
+        await pause()
+        let freshScroll = descendants(root).compactMap { $0 as? NSScrollView }.first
+        try require(freshScroll?.contentView.bounds.origin.y == 0, "new word starts at top")
     }
 
     private static func checkAppearance(app: AppDelegate, folder: URL) async throws {
