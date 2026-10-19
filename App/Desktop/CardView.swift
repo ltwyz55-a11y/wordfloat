@@ -55,7 +55,7 @@ struct CardView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
             .accessibilityElement(children: .contain)
-            .accessibilityAction(named: "查看释义并发音", toggle)
+            .accessibilityAction(named: "展开或收起释义", toggle)
             .accessibilityAction(named: "打开词本", onOpenLibrary)
             HStack(spacing: 44) {
                 Button { study.advance(-1) } label: { Image(systemName: "chevron.left").font(.system(size: 10, weight: .medium)) }
@@ -110,8 +110,7 @@ struct CardView: View {
     }
 
     private func toggle() {
-        guard let current = study.current else { return }
+        guard study.current != nil else { return }
         study.revealed.toggle()
-        if study.revealed { audio.speak(current.word.spelling) }
     }
 }

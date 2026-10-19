@@ -68,9 +68,8 @@ final class CardEventHandler {
         case .openLibrary: cancel(); audio.stop(); openLibrary()
         case .scheduleSingle:
             let click = DispatchWorkItem { [weak self] in
-                guard let self, let word = self.study.current?.word.spelling else { return }
+                guard let self, self.study.current != nil else { return }
                 self.study.revealed.toggle()
-                if self.study.revealed { self.audio.speak(word) }
             }
             pendingClick = click
             DispatchQueue.main.asyncAfter(deadline: .now() + NSEvent.doubleClickInterval, execute: click)
