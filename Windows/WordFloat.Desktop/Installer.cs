@@ -102,7 +102,7 @@ internal static class Installer
                 "if((Test-Path -LiteralPath "+Quote(InstallDirectory)+") -and -not (Get-ChildItem -LiteralPath "+Quote(InstallDirectory)+" -Force)){Remove-Item -LiteralPath "+Quote(InstallDirectory)+" -Force}";
             var encoded=Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
             Process.Start(new ProcessStartInfo(Path.Combine(Environment.SystemDirectory,@"WindowsPowerShell\v1.0\powershell.exe"))
-                {UseShellExecute=false,CreateNoWindow=true,ArgumentList={"-NoProfile","-NonInteractive","-EncodedCommand",encoded}});
+                {UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=Path.GetTempPath(),ArgumentList={"-NoProfile","-NonInteractive","-EncodedCommand",encoded}});
             if(!quiet)MessageBox.Show("浮词卸载即将完成，学习设置已保留。",AppInfo.Name,MessageBoxButton.OK,MessageBoxImage.Information);
             return 0;
         }
