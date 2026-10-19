@@ -73,8 +73,9 @@ internal static class UI
             var bitmap = new BitmapImage(); bitmap.BeginInit(); bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.UriSource = new Uri(wallpaper); bitmap.EndInit(); bitmap.Freeze();
             var group = new DrawingGroup();
-            group.Children.Add(new ImageDrawing(bitmap,new Rect(0,0,260,220)));
-            group.Children.Add(new GeometryDrawing(Brush(style.Tint,style.Opacity),null,new RectangleGeometry(new Rect(0,0,260,220))));
+            var imageBounds=new Rect(0,0,bitmap.PixelWidth,bitmap.PixelHeight);
+            group.Children.Add(new ImageDrawing(bitmap,imageBounds));
+            group.Children.Add(new GeometryDrawing(Brush(style.Tint,style.Opacity),null,new RectangleGeometry(imageBounds)));
             surface.Background = new DrawingBrush(group) { Stretch = Stretch.UniformToFill };
             }
             catch (Exception e) when (e is System.IO.IOException or NotSupportedException or ArgumentException)
