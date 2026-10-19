@@ -20,7 +20,11 @@ internal sealed class WindowsSpeechOutput : ISpeechOutput
         }
         catch (Exception e) when (e is InvalidOperationException or System.Runtime.InteropServices.COMException) { }
     }
-    public void Stop() { synthesizer?.SpeakAsyncCancelAll(); }
+    public void Stop()
+    {
+        try { synthesizer?.SpeakAsyncCancelAll(); }
+        catch (Exception e) when (e is InvalidOperationException or System.Runtime.InteropServices.COMException) { }
+    }
     public void Speak(IReadOnlyList<SpeechPart> parts)
     {
         if (synthesizer is null) return;
@@ -33,5 +37,10 @@ internal sealed class WindowsSpeechOutput : ISpeechOutput
         }
         synthesizer.SpeakAsync(prompt);
     }
-    public void Dispose() { Stop(); synthesizer?.Dispose(); }
+    public void Dispose()
+    {
+        Stop();
+        try { synthesizer?.Dispose(); }
+        catch (Exception e) when (e is InvalidOperationException or System.Runtime.InteropServices.COMException) { }
+    }
 }
