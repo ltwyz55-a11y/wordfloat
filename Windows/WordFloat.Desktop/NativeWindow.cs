@@ -13,10 +13,12 @@ namespace WordFloat.Desktop;
 
 internal static class NativeWindow
 {
+    internal static bool? DiagnosticDarkMode { get; set; }
     internal static bool IsDark
     {
         get
         {
+            if (DiagnosticDarkMode is bool forced) return forced;
             using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
             return key?.GetValue("AppsUseLightTheme") is int light && light == 0;
         }

@@ -13,6 +13,8 @@ internal static class Program
     {
         try
         {
+            var diagnosticIndex=Array.IndexOf(args,"--diagnostics");
+            if(diagnosticIndex>=0)return diagnosticIndex+1<args.Length?WindowsDiagnostics.Run(args[diagnosticIndex+1]):2;
             if(Installer.Handle(args) is int installerResult)return installerResult;
             using var instance=new SingleInstance();
             if(!instance.IsPrimary)
