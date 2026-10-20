@@ -40,6 +40,19 @@ try {
         Must-Fail {Get-PayloadPath $app $relative} ('Unsafe path accepted: ' + $relative)
     }
     Write-Host 'PASS missing/tampered runtimes and traversal rejected'
+    $script:moveAttempts=0
+    function Move-Item {
+        param($LiteralPath,$Destination)
+        $script:moveAttempts++
+        if ($script:moveAttempts -lt 3) { throw [IO.IOException]::new('simulated image lock') }
+        Microsoft.PowerShell.Management\Move-Item -LiteralPath $LiteralPath -Destination $Destination
+    }
+    $from=Join-Path $temporary 'incoming'; $to=Join-Path $temporary 'promoted'
+    [void][IO.Directory]::CreateDirectory($from)
+    Move-Payload $from $to
+    Require ($script:moveAttempts -eq 3 -and (Test-Path -LiteralPath $to)) 'Update did not retry transient process locks'
+    Remove-Item function:\Move-Item
+    Write-Host 'PASS transient process image locks retried before replacement'
     $dataDirectory = Join-Path $temporary 'data'
     [void][IO.Directory]::CreateDirectory($dataDirectory)
     $script:simulatedExit = $false; $script:simulatedCode = 0; $script:argumentsSeen = @()

@@ -90,6 +90,14 @@ function New-AppShortcut([string]$path, [string]$action) {
     } finally { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell) }
 }
 
+function Move-Payload([string]$source, [string]$destination) {
+    # The previous process can release its mutex just before Windows unloads its images.
+    for ($attempt=0; ; $attempt++) {
+        try { Move-Item -LiteralPath $source -Destination $destination; return }
+        catch { if ($attempt -ge 20) { throw }; Start-Sleep -Milliseconds 200 }
+    }
+}
+
 function Install-WordFloat {
     $source = Join-Path $PSScriptRoot 'app'
     $manifest = Test-Payload $source
@@ -108,9 +116,9 @@ function Install-WordFloat {
             }
             Copy-Item -LiteralPath (Join-Path $source 'package.json') -Destination $incoming
             $null = Test-Payload $incoming
-            if (Test-Path -LiteralPath $target) { Move-Item -LiteralPath $target -Destination $backup }
-            try { Move-Item -LiteralPath $incoming -Destination $target }
-            catch { if (Test-Path -LiteralPath $backup) { Move-Item -LiteralPath $backup -Destination $target }; throw }
+            if (Test-Path -LiteralPath $target) { Move-Payload $target $backup }
+            try { Move-Payload $incoming $target }
+            catch { if (Test-Path -LiteralPath $backup) { Move-Payload $backup $target }; throw }
             if (Test-Path -LiteralPath $backup) { Remove-ManagedPayload $backup }
             foreach ($name in @('WordFloat.ps1','Install.cmd','Start.cmd','SafeMode.cmd','Diagnose.cmd')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $installDirectory $name) -Force
@@ -189,6 +197,9 @@ function Uninstall-WordFloat {
     Add-Type -AssemblyName System.Windows.Forms
     if ([System.Windows.Forms.MessageBox]::Show('卸载浮词？学习进度和外观设置会保留。',$title,[System.Windows.Forms.MessageBoxButtons]::YesNo) -ne [System.Windows.Forms.DialogResult]::Yes) { return }
     Stop-WordFloat
+    # A running PowerShell shortcut must not keep the installation directory locked.
+    [Environment]::CurrentDirectory = [IO.Path]::GetTempPath()
+    Set-Location -LiteralPath ([IO.Path]::GetTempPath())
     $menu = Join-Path ([Environment]::GetFolderPath('Programs')) $title
     foreach ($path in @((Join-Path $menu ($title+'.lnk')),(Join-Path $menu ('卸载'+$title+'.lnk')),(Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) ($title+'.lnk')))) {
         if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Force }
