@@ -24,11 +24,16 @@ internal sealed class CardWindow : Window
     internal Button Speaker { get; }
     internal ScrollViewer? Scroller => body.Content as ScrollViewer;
     private bool ready;
+    private bool applyingSize;
+    private bool? renderedRevealed;
+    private (ResizeEdges Edges,ScreenRect Frame,Point Point,double DpiX,double DpiY)? resizing;
     private int clickCount;
     internal CardWindow(StudySession study, Pronunciation audio, AppearanceController appearance, Action openLibrary)
     {
         this.study=study; this.audio=audio; this.appearance=appearance; this.openLibrary=openLibrary;
-        Title=AppInfo.Name; Width=260; Height=study.Revealed?220:150; MinWidth=0; MinHeight=0;
+        var size=study.Settings.Value.CardSize.Size(study.Revealed);
+        Title=AppInfo.Name; Width=size.Width; Height=size.Height;
+        MinWidth=CardSizing.MinimumWidth;MaxWidth=CardSizing.MaximumWidth;MinHeight=CardSizing.MinimumHeight(study.Revealed);MaxHeight=CardSizing.MaximumHeight;
         NativeWindow.PrepareCard(this);
         var grid = new Grid(); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(24) });
         grid.RowDefinitions.Add(new RowDefinition()); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(36) });
@@ -49,14 +54,18 @@ internal sealed class CardWindow : Window
         body.PreviewMouseMove += PointerMove;
         body.PreviewMouseLeftButtonUp += PointerUp;
         body.PreviewMouseWheel += (_,_)=>CancelInteraction();
-        PreviewMouseLeftButtonDown += (_,e)=>{if(UI.IsControlTarget(e.OriginalSource as DependencyObject))CancelInteraction();};
+        PreviewMouseLeftButtonDown += ResizeDown;
+        PreviewMouseMove += ResizeMove;
+        PreviewMouseLeftButtonUp += ResizeUp;
+        LostMouseCapture+=(_,_)=>{if(resizing is not null)CancelInteraction();};
         MouseEnter += (_,_)=>{previous.Opacity=0.65;next.Opacity=0.65;};
-        MouseLeave += (_,_)=>{previous.Opacity=0;next.Opacity=0;};
+        MouseLeave += (_,_)=>{previous.Opacity=0;next.Opacity=0;if(resizing is null)Mouse.OverrideCursor=null;};
         clickTimer.Interval=TimeSpan.FromMilliseconds(NativeWindow.DoubleClickMilliseconds);
         clickTimer.Tick += (_,_)=>{clickTimer.Stop();ApplyAction(CardAction.SingleClick);};
-        SourceInitialized += (_,_)=>NativeWindow.Attach(this,HorizontalScroll,()=>{if(ready)NativeWindow.Restore(this,study.Settings);});
+        SourceInitialized += (_,_)=>NativeWindow.Attach(this,HorizontalScroll,()=>{CancelInteraction();if(ready)NativeWindow.Restore(this,study.Settings);});
         Loaded += (_,_)=>{NativeWindow.Restore(this,study.Settings);ready=true;};
         LocationChanged += (_,_)=>{if(ready)NativeWindow.Remember(this,study.Settings);};
+        SizeChanged+=(_,_)=>{if(ready&&!applyingSize)study.Settings.Value.CardSize.Remember(Width,Height,study.Revealed);};
         study.Changed += StudyChanged; study.ChangingWord += CancelInteraction;
         appearance.Changed += AppearanceChanged; audio.MessageChanged += UpdateSpeechMessage;
         Closed += (_,_)=>
@@ -79,7 +88,17 @@ internal sealed class CardWindow : Window
         previous.Foreground=ink;Speaker.Foreground=ink;next.Foreground=ink;
         Speaker.IsEnabled=study.Current is not null;
         body.Content=CardContent.Build(study,audio,style,study.Revealed);
-        Height=study.Revealed?220:150;
+        if(renderedRevealed!=study.Revealed)
+        {
+            CancelInteraction();applyingSize=true;
+            try
+            {
+                var size=study.Settings.Value.CardSize.Size(study.Revealed);
+                MinHeight=CardSizing.MinimumHeight(study.Revealed);Width=size.Width;Height=size.Height;
+                renderedRevealed=study.Revealed;
+            }
+            finally{applyingSize=false;}
+        }
         if(ready) Dispatcher.BeginInvoke(()=>NativeWindow.Restore(this,study.Settings),DispatcherPriority.Loaded);
         if(offset>0) Dispatcher.BeginInvoke(()=>Scroller?.ScrollToVerticalOffset(offset),DispatcherPriority.Loaded);
         NativeWindow.ApplyBackdrop(this);
@@ -100,7 +119,10 @@ internal sealed class CardWindow : Window
     internal void CancelInteraction()
     {
         clickTimer.Stop();pointer.Cancel();
+        var wasResizing=resizing is not null;resizing=null;Mouse.OverrideCursor=null;
         if(body.IsMouseCaptured)body.ReleaseMouseCapture();
+        if(IsMouseCaptured)ReleaseMouseCapture();
+        if(wasResizing){study.Settings.Save();NativeWindow.Restore(this,study.Settings);NativeWindow.Remember(this,study.Settings);}
     }
     internal void Conceal()
     {
@@ -136,9 +158,51 @@ internal sealed class CardWindow : Window
     }
     private void HorizontalScroll(double delta)
     {
+        if(resizing is not null)return;
         var point=Mouse.GetPosition(body);
         if(point.X<0||point.Y<0||point.X>body.ActualWidth||point.Y>body.ActualHeight)return;
         CancelInteraction();
         if(wheel.Consume(delta,Environment.TickCount64/1000.0) is int direction)study.Advance(direction);
+    }
+    private void ResizeDown(object sender,MouseButtonEventArgs e)
+    {
+        var point=e.GetPosition(this);
+        var edges=CardResizing.HitTest(point.X,point.Y,ActualWidth,ActualHeight);
+        if(edges!=ResizeEdges.None)
+        {
+            CancelInteraction();
+            var dpi=VisualTreeHelper.GetDpi(this);
+            resizing=(edges,NativeWindow.CardFrame(this),PointToScreen(point),dpi.DpiScaleX,dpi.DpiScaleY);
+            Mouse.Capture(this,CaptureMode.Element);Mouse.OverrideCursor=ResizeCursor(edges);e.Handled=true;
+        }
+        else if(UI.IsControlTarget(e.OriginalSource as DependencyObject))CancelInteraction();
+    }
+    private static Cursor ResizeCursor(ResizeEdges edges)
+    {
+        if((edges&(ResizeEdges.Left|ResizeEdges.Right))==0)return Cursors.SizeNS;
+        if((edges&(ResizeEdges.Top|ResizeEdges.Bottom))==0)return Cursors.SizeWE;
+        return edges==(ResizeEdges.Left|ResizeEdges.Top)||edges==(ResizeEdges.Right|ResizeEdges.Bottom)?Cursors.SizeNWSE:Cursors.SizeNESW;
+    }
+    private bool UpdateResize(MouseEventArgs e)
+    {
+        if(resizing is not { } drag)return false;
+        var point=PointToScreen(e.GetPosition(this));
+        var frame=CardResizing.Frame(drag.Frame,(point.X-drag.Point.X)/drag.DpiX,(point.Y-drag.Point.Y)/drag.DpiY,drag.Edges,study.Revealed);
+        applyingSize=true;
+        try{NativeWindow.ResizeCard(this,frame);}
+        finally{applyingSize=false;}
+        study.Settings.Value.CardSize.Remember(frame.Width,frame.Height,study.Revealed);
+        return true;
+    }
+    private void ResizeMove(object sender,MouseEventArgs e)
+    {
+        if(UpdateResize(e)){e.Handled=true;return;}
+        var point=e.GetPosition(this);var edges=CardResizing.HitTest(point.X,point.Y,ActualWidth,ActualHeight);
+        Mouse.OverrideCursor=edges==ResizeEdges.None?null:ResizeCursor(edges);
+    }
+    private void ResizeUp(object sender,MouseButtonEventArgs e)
+    {
+        if(!UpdateResize(e))return;
+        CancelInteraction();e.Handled=true;
     }
 }

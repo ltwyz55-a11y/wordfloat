@@ -10,6 +10,17 @@ internal static partial class Program
     static partial void RunStudyChecks(VocabularyStore store, string temporary)
     {
         var path = Path.Combine(temporary, "settings.json");
+        Check("custom card dimensions survive restart and invalid settings recover", () =>
+        {
+            var sizePath=Path.Combine(temporary,"card-size.json");var prefs=new SettingsStore(sizePath);
+            prefs.Value.CardSize.Remember(380,240,false);prefs.Value.CardSize.Remember(380,350,true);prefs.Save();
+            var restored=new SettingsStore(sizePath).Value.CardSize;
+            Require(restored.Size(false)==new CardSize(380,240)&&restored.Size(true)==new CardSize(380,350),"Stored card dimensions");
+            File.WriteAllText(sizePath,"{\"CardSize\":null}");
+            Require(new SettingsStore(sizePath).Value.CardSize.Size(false)==new CardSize(260,150),"Null legacy settings");
+            File.WriteAllText(sizePath,"{\"CardSize\":{\"Width\":9999,\"CompactHeight\":-1,\"ExpandedHeight\":1}}");
+            Require(new SettingsStore(sizePath).Value.CardSize.Size(false)==new CardSize(520,130)&&new SettingsStore(sizePath).Value.CardSize.ExpandedHeight==200,"Stored bounds normalization");
+        });
         Check("circular navigation and silent reveal state", () =>
         {
             var study = new StudySession(store, new SettingsStore(path));

@@ -86,6 +86,18 @@ internal static class NativeWindow
         if (GetWindowRect(new WindowInteropHelper(window).Handle,out var rect))
         { settings.Value.CardLeft=rect.Left; settings.Value.CardTop=rect.Top; settings.Save(); }
     }
+    internal static ScreenRect CardFrame(Window window)
+    {
+        var scale=VisualTreeHelper.GetDpi(window);
+        if(!GetWindowRect(new WindowInteropHelper(window).Handle,out var rect))return new(0,0,window.Width,window.Height);
+        return new(rect.Left/scale.DpiScaleX,rect.Top/scale.DpiScaleY,(rect.Right-rect.Left)/scale.DpiScaleX,(rect.Bottom-rect.Top)/scale.DpiScaleY);
+    }
+    internal static void ResizeCard(Window window,ScreenRect frame)
+    {
+        var scale=VisualTreeHelper.GetDpi(window);
+        window.Width=frame.Width;window.Height=frame.Height;
+        SetWindowPos(new WindowInteropHelper(window).Handle,IntPtr.Zero,(int)Math.Round(frame.X*scale.DpiScaleX),(int)Math.Round(frame.Y*scale.DpiScaleY),0,0,0x0010|0x0001|0x0004);
+    }
     internal static int DoubleClickMilliseconds => (int)GetDoubleClickTime();
     [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left,Top,Right,Bottom; }
     [StructLayout(LayoutKind.Sequential)] private struct Margins { public int Left,Right,Top,Bottom; }

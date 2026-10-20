@@ -107,6 +107,19 @@ internal static class WindowsDiagnostics
                     controller.ShowLibrary();controller.Library.ShowAppearance();await Pause();Capture(controller.Library,Path.Combine(folder,"appearance-dark.png"));
                     NativeWindow.DiagnosticDarkMode=false;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"appearance-light.png"));
                     checks.Add("appearance-editor-light-and-dark");
+                    controller.ShowCard();study.Revealed=false;await Pause();
+                    var sameWord=study.Current!.Id;var spokenCount=engine.Spoken.Count;
+                    card.Width=1;card.Height=1;await Pause();
+                    Require(card.ActualWidth==220&&card.ActualHeight==130,"Minimum card size");Capture(card,Path.Combine(folder,"card-resize-minimum.png"));
+                    card.Width=900;card.Height=900;await Pause();
+                    Require(card.ActualWidth==520&&card.ActualHeight==420,"Maximum card size");Capture(card,Path.Combine(folder,"card-resize-maximum.png"));
+                    card.Width=380;card.Height=240;await Pause();study.Revealed=true;await Pause();
+                    Require(card.ActualWidth==380&&card.ActualHeight==220,"Independent expanded height");
+                    card.Height=350;await Pause();study.Revealed=false;await Pause();
+                    Require(card.ActualWidth==380&&card.ActualHeight==240,"Collapse restores custom size");
+                    study.Revealed=true;await Pause();Require(card.ActualHeight==350,"Expanded size remembered");
+                    Require(study.Current!.Id==sameWord&&engine.Spoken.Count==spokenCount,"Resize must not flip or pronounce words");Capture(card,Path.Combine(folder,"card-resize-expanded.png"));
+                    checks.Add("bounded-card-size-and-independent-mode-heights");
                     completed=true;card.Show();controller.Library.Close();
                 }
                 catch(Exception error){failure=error;controller.Quit();}

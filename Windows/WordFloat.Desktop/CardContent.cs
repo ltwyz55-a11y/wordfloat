@@ -19,6 +19,7 @@ internal static class CardContent
         var word = UI.Text(entry.Spelling,entry.Spelling.Length > 23 ? 23 : 30,ink);
         word.FontWeight = FontWeights.Medium; word.TextAlignment = TextAlignment.Center;
         word.Width = 224;
+        stack.SizeChanged+=(_,e)=>word.Width=Math.Max(1,e.NewSize.Width);
         stack.Children.Add(new Viewbox { Child=word, Stretch=Stretch.Uniform, StretchDirection=StretchDirection.DownOnly, MaxHeight=revealed?100:84 });
         if (!revealed) return stack;
         var phonetic = UI.Text(string.Join("   ",new[] {entry.PartOfSpeech,entry.Phonetic}.Where(s => s.Length>0)),12,muted);
