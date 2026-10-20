@@ -21,6 +21,17 @@ internal static class Installer
     private static string DesktopLink=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),"浮词.lnk");
     internal static int? Handle(string[] args)
     {
+        // Folder releases are installed by a Windows-native launcher, before WPF/.NET startup.
+        var launcher=Path.Combine(Path.GetDirectoryName(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar))!,"WordFloat.ps1");
+        if(File.Exists(launcher)&&(args.Contains("--install")||args.Contains("--uninstall")))
+        {
+            Process.Start(new ProcessStartInfo(Path.Combine(Environment.SystemDirectory,@"WindowsPowerShell\v1.0\powershell.exe"))
+            {
+                UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=Path.GetDirectoryName(launcher)!,
+                ArgumentList={"-NoProfile","-ExecutionPolicy","Bypass","-File",launcher,"-Mode",args.Contains("--uninstall")?"Uninstall":"Install"}
+            });
+            return 0;
+        }
         var quiet=args.Contains("--quiet");
         if(args.Contains("--uninstall"))return Uninstall(quiet);
         var isInstaller=Path.GetFileNameWithoutExtension(Environment.ProcessPath!).EndsWith("-安装",StringComparison.Ordinal);
