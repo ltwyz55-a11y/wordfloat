@@ -1,18 +1,21 @@
 # 浮词 Windows 版
 
-版本 1.0.0。面向 Windows 10 22H2 / Windows 11，Intel 或 AMD 的 64 位电脑；本包为 x64，不含原生 ARM64 或 32 位版本。
+版本 1.0.1。面向 Windows 10 22H2 / Windows 11，Intel 或 AMD 的 64 位电脑；本包为 x64，不含原生 ARM64 或 32 位版本。
 
 ## 下载、安装与关闭
 
-1. 下载并解压「浮词-Windows-x64-1.0.0.zip」。
-2. 双击「浮词-Windows-安装.exe」。安装到当前用户目录，无需管理员权限，也无需另外安装 .NET。
-3. 安装完成后，从桌面或开始菜单打开「浮词」。首次启动会显示词本主页面。
-4. 选择词本，点击「悬浮学习」。再次启动会恢复当前词本、单词位置和外观。
-5. 关闭主页面右上角的 ×，或在系统托盘中选择「退出浮词」，会退出软件并关闭桌面卡片。需要返回卡片时，点击「悬浮学习」。
+1. 下载并**完整解压**「浮词-Windows-x64-1.0.1.zip」。
+2. 双击 `Install.cmd` 安装。安装到当前用户目录，无需管理员权限，也无需另外安装 .NET；安装成功会自动启动。请保留同一文件夹中的 `app` 子目录，不要只复制 EXE。
+3. 也可直接双击 `Start.cmd` 免安装打开。若仍无界面，试 `SafeMode.cmd`：改用软件渲染并关闭系统玻璃材质，卡片功能和学习数据相同。
+4. 安装完成后，从桌面或开始菜单打开「浮词」。首次启动会显示词本主页面。
+5. 选择词本，点击「悬浮学习」。再次启动会恢复当前词本、单词位置和外观。
+6. 关闭主页面右上角的 ×，或在系统托盘中选择「退出浮词」，会退出软件并关闭桌面卡片。需要返回卡片时，点击「悬浮学习」。
 
-安装位置为 `%LOCALAPPDATA%\Programs\WordFloat\浮词.exe`。更新时重新运行最新版安装程序，会先请求已有浮词正常退出，再替换程序。重复打开软件会唤出已有实例。
+安装位置为 `%LOCALAPPDATA%\Programs\WordFloat`，实际程序及运行库位于其中的 `app` 文件夹。更新时重新运行最新版 `Install.cmd`，会先请求已有浮词正常退出，再校验并替换程序。重复打开软件会唤出已有实例。
 
 可在 Windows「设置 → 应用」中卸载，或使用开始菜单「浮词 → 卸载浮词」。卸载保留学习进度和外观设置；本地数据位于 `%LOCALAPPDATA%\WordFloat`。
+
+本版不再使用 1.0.0 的压缩单文件入口；完整运行库直接随包提供，避免启动前的解压依赖。系统语音延迟到点击朗读时才初始化，不再阻挡首次显示窗口。
 
 本地构建尚未进行 Windows 代码签名，系统可能显示未知发布者。压缩包同时提供来源与许可说明，交付目录提供 SHA-256 校验值。
 
@@ -49,17 +52,18 @@ Windows 11 22H2 及以上、透明度开启时接入系统玻璃材质；其他�
 
 ## 验证范围
 
-已在当前 Mac 上完成 Windows 交叉编译、15 组跨平台数据／逻辑检查，以及最终 EXE 的 Windows x64 格式、内置运行环境、全部内嵌文件和 SQLite 资源校验。**尚未在 Windows 实机运行安装程序和桌面界面**；安装卸载、玻璃观感、实际扬声器、物理触控板、多显示器及全屏叠放均未标记为通过。
+已在当前 Mac 上完成 Windows 交叉编译、16 组跨平台数据／逻辑检查、PowerShell 安装启动脚本的语法和隔离模拟检查，以及最终完整文件夹的 Windows x64 格式、250 项依赖资产和 SQLite 资源校验。**尚未在 Windows 实机运行安装程序和桌面界面**；安装卸载、玻璃观感、实际扬声器、物理触控板、多显示器及全屏叠放均未标记为通过。
 
 置顶窗口由 Windows 桌面管理器管理；跨虚拟桌面和独占全屏不作自动覆盖承诺。已实现屏幕边界与拔除显示器后的几何恢复逻辑，仍需要实机检查混合缩放和显示器拔插。
 
-在 Windows 上可运行隔离诊断（只操作自己的测试窗口，使用静音发音替身，不改变真实学习进度）：
+## 无提示打不开时
 
-```powershell
-& "$env:LOCALAPPDATA\Programs\WordFloat\浮词.exe" --diagnostics "$env:TEMP\WordFloat-Diagnostics"
-```
+1. 先确认已将 ZIP **全部解压**，再运行根目录中的 `Start.cmd`；不要在压缩包里直接运行，也不要单独挪出 `app/WordFloat.exe`。
+2. 运行 `SafeMode.cmd` 尝试兼容启动。这个入口只为本次运行关闭 GPU 渲染和玻璃效果，不修改学习进度或外观设置。
+3. 启动失败会显示错误，命令窗口会保留。日志目录是 `%LOCALAPPDATA%\WordFloat`：`startup.log` 记录应用代码进度，`launcher-error.log` 记录安装／启动脚本错误；`Logs` 下每次启动分别保存 `launch.json`、`host.log`、`stderr.log` 等。没有进入应用代码的运行库错误也可由启动器记录。日志不包含其他应用截图。
+4. 请提供错误原文及最近一次 `Logs` 子目录的日志，以判断是系统版本、文件损坏、运行环境、窗口创建还是其他问题。**当前收到的现象仅为“无提示”，尚未拿到故障电脑日志，不能确认根因。** 如果是组织策略或系统安全软件阻止执行，请提供其提示；本工具不会更改系统安全策略。
 
-输出 `windows-checks.json` 和本应用窗口截图；截图不包含系统合成的桌面背景，不能证明真实磨砂观感或物理声音效果。完整范围见同目录「Windows验收记录.md」。
+`Diagnose.cmd` 会在软件渲染模式下运行独立的 WPF 窗口与操作检查，使用静音发音替身和隔离学习设置，不改变真实学习进度；输出文件夹会弹窗显示。结果位于 `checks/windows-checks.json`，并包含应用自己的窗口截图，不截取其他应用。诊断入口仍依赖 WPF 能正常启动，不能代替启动器日志，也不证明物理声音或真实磨砂效果。完整范围见同目录「Windows验收记录.md」。
 
 ## 从源码构建
 
@@ -67,17 +71,17 @@ Windows 11 22H2 及以上、透明度开启时接入系统玻璃材质；其他�
 
 ```powershell
 dotnet run --project Windows/WordFloat.Checks -c Release -- "$PWD"
-dotnet publish Windows/WordFloat.Desktop -c Release -r win-x64 --self-contained true -p:PublishProfile=win-x64 -p:DebugType=None -p:DebugSymbols=false -o work/windows-publish
+dotnet publish Windows/WordFloat.Desktop -c Release -r win-x64 --self-contained true -p:PublishProfile=win-x64-folder -p:DebugType=None -p:DebugSymbols=false -o work/windows-folder
 ```
 
-复制发布目录中的 `WordFloat.exe` 并命名为 `浮词-Windows-安装.exe`，双击就会进入当前用户安装流程；`--install` 参数也可显式启动安装。保留普通名字则是可直接运行的应用，首次运行同样使用本机数据目录。
+发布目录是完整的自包含应用，必须保留全部文件和子目录。`Windows/Launcher` 中的脚本不依赖本应用的 .NET 运行库，打包工具会将脚本和完整发布目录放在一起，并生成逐文件 SHA-256 清单供启动器验证。
 
 如需制作与交付相同的 ZIP，安装 Python 3.9 及以上，再执行：
 
 ```powershell
-python Scripts/package_windows.py --publish-dir work/windows-publish
+python Scripts/package_windows.py --publish-dir work/windows-folder
 ```
 
 macOS 构建可直接执行 `sh Scripts/package_windows.sh`，脚本优先使用项目 `work/dotnet` 中的 SDK，避免改动系统工具链。已提交的 SQLite 和学习 JSON 足够重新构建，无需重新下载原始词库。
 
-程序采用自包含单文件发布，运行库与 Windows 桌面依赖随 EXE 提供；部署机制参见 [Microsoft 单文件部署说明](https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview)。内容来源及覆盖边界见「词库来源.md」。
+程序采用自包含文件夹发布，运行库与 Windows 桌面依赖随程序提供；部署机制参见 [Microsoft .NET 部署说明](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。旧版单文件的原生库需要在启动前解压，参见 [Microsoft 单文件部署说明](https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview)。内容来源及覆盖边界见「词库来源.md」。
