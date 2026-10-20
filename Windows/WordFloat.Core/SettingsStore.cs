@@ -12,6 +12,7 @@ public sealed class AppSettings
     public string Accent { get; set; } = "en-US";
     public double? CardLeft { get; set; }
     public double? CardTop { get; set; }
+    public CardSizing CardSize { get; set; } = new();
     public bool HasLaunched { get; set; }
     public CardStyle Appearance { get; set; } = new();
 }
@@ -26,6 +27,7 @@ public sealed class SettingsStore
         try { Value = File.Exists(path) ? JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), JsonDefaults.Options) ?? new() : new(); }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException) { Value = new(); }
         Value.Positions ??= [];
+        Value.CardSize ??= new(); Value.CardSize.Normalize();
         if (Value.Accent is not ("en-US" or "en-GB")) Value.Accent = "en-US";
         if (Value.CardLeft is double x && !double.IsFinite(x)) Value.CardLeft = null;
         if (Value.CardTop is double y && !double.IsFinite(y)) Value.CardTop = null;

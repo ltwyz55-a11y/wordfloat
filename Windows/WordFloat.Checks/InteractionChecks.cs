@@ -6,6 +6,21 @@ internal static partial class Program
 {
     static partial void RunInteractionChecks()
     {
+        Check("card resize limits mode heights and opposite edge anchors", () =>
+        {
+            var sizing=new CardSizing();sizing.Remember(400,280,false);sizing.Remember(900,10,true);
+            Require(sizing.Size(true)==new CardSize(520,200)&&sizing.Size(false)==new CardSize(520,280),"Independent heights");
+            var restored=System.Text.Json.JsonSerializer.Deserialize<CardSizing>(System.Text.Json.JsonSerializer.Serialize(sizing))!;
+            Require(restored.Size(false)==sizing.Size(false),"Size restore");
+            var invalid=new CardSizing{Width=double.NaN,CompactHeight=double.PositiveInfinity,ExpandedHeight=-1};invalid.Normalize();
+            Require(invalid.Size(false)==new CardSize(260,150)&&invalid.ExpandedHeight==200,"Invalid size recovery");
+            Require(CardResizing.HitTest(130,70,260,150)==ResizeEdges.None&&CardResizing.HitTest(12,12,260,150)==(ResizeEdges.Left|ResizeEdges.Top),"Resize hit regions");
+            var frame=new ScreenRect(100,200,260,150);
+            var small=CardResizing.Frame(frame,900,900,ResizeEdges.Left|ResizeEdges.Top,false);
+            Require(small.Width==220&&small.Height==130&&small.Right==frame.Right&&small.Bottom==frame.Bottom,"Minimum anchor");
+            Require(CardResizing.Frame(frame,900,900,ResizeEdges.Right|ResizeEdges.Bottom,false)==new ScreenRect(100,200,520,420),"Maximum size");
+            Require(CardResizing.Frame(frame,double.NaN,0,ResizeEdges.Right,false)==frame,"Invalid pointer delta");
+        });
         Check("clicks swipes vertical drags and cancellation stay exclusive", () =>
         {
             var pointer = new CardPointer();
