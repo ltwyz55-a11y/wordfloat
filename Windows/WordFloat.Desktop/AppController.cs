@@ -27,7 +27,7 @@ internal sealed class AppController : IDisposable
     internal bool TrayVisible=>!disposed && tray.Visible;
     internal AppController(Application app,string directory,ISpeechOutput? speech=null)
     {
-        this.app=app;this.speech=speech??new WindowsSpeechOutput();
+        this.app=app;this.speech=speech??new DeferredSpeechOutput(()=>new WindowsSpeechOutput());
         Settings=new SettingsStore(Path.Combine(directory,"settings.json"));
         Store=new VocabularyStore(VocabularyStore.ExtractBundled(Path.Combine(directory,"Cache")));
         Study=new StudySession(Store,Settings);Audio=new Pronunciation(this.speech,Settings);
