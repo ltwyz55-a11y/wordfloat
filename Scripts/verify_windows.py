@@ -87,8 +87,43 @@ def verify(path):
     return dict(status='passed',inspection='PE and .NET bundle; Windows runtime execution not performed',architecture='win-x64',bundleId=ident,embeddedFiles=len(files),frameworks=included,
         nativeHostMatchesSdk=host_verified,nativeCodeSha256=hashlib.sha256(pe_sections['.text']).hexdigest(),vocabularySha256=hashlib.sha256(vocabulary).hexdigest(),executableSha256=hashlib.sha256(data).hexdigest(),bytes=len(data))
 
+def verify_folder(directory):
+    directory=pathlib.Path(directory)
+    required={'WordFloat.exe','WordFloat.dll','WordFloat.Core.dll','WordFloat.deps.json','WordFloat.runtimeconfig.json',
+        'System.Speech.dll','PresentationFramework.dll','PresentationCore.dll','WindowsBase.dll','System.Windows.Forms.dll',
+        'System.Private.CoreLib.dll','hostfxr.dll','hostpolicy.dll','coreclr.dll','clrjit.dll','wpfgfx_cor3.dll','vcruntime140_cor3.dll'}
+    actual={p.name for p in directory.iterdir() if p.is_file()}
+    assert required<=actual,'Missing deployment files: '+str(required-actual)
+    data=(directory/'WordFloat.exe').read_bytes()
+    pe=struct.unpack_from('<I',data,0x3c)[0]
+    assert data[:2]==b'MZ' and data[pe:pe+4]==b'PE\0\0'
+    assert struct.unpack_from('<H',data,pe+4)[0]==0x8664,'Expected Windows x64 apphost'
+    assert struct.unpack_from('<H',data,pe+24+68)[0]==2,'Expected Windows GUI app'
+    runtime=json.loads((directory/'WordFloat.runtimeconfig.json').read_text())['runtimeOptions']
+    included={f['name']:f['version'] for f in runtime.get('includedFrameworks',[])}
+    assert {'Microsoft.NETCore.App','Microsoft.WindowsDesktop.App'}<=included.keys()
+    assert 'framework' not in runtime and 'frameworks' not in runtime,'External .NET runtime required'
+    deps=json.loads((directory/'WordFloat.deps.json').read_text())
+    assets=set()
+    for target in deps['targets'].values():
+        for library in target.values():
+            for kind in ('runtime','native','resources'):
+                for name in library.get(kind,{}):
+                    path=pathlib.PurePosixPath(name)
+                    if path.name=='_._':continue
+                    candidate=directory/path.name
+                    if kind=='resources':candidate=directory/path.parent.name/path.name
+                    assert candidate.is_file(),'Missing dependency asset: '+name
+                    assets.add(str(candidate.relative_to(directory)))
+    vocabulary=(ROOT/'App/Core/Resources/vocabulary.sqlite').read_bytes()
+    assert vocabulary in (directory/'WordFloat.Core.dll').read_bytes(),'Vocabulary resource differs'
+    hashes={p.relative_to(directory).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(directory.rglob('*')) if p.is_file()}
+    return dict(status='passed',inspection='Self-contained folder PE, dependency assets and SQLite; Windows execution not performed',
+        deployment='folder',architecture='win-x64',frameworks=included,dependencyAssets=len(assets),files=hashes,
+        vocabularySha256=hashlib.sha256(vocabulary).hexdigest(),executableSha256=hashes['WordFloat.exe'],bytes=sum(p.stat().st_size for p in directory.rglob('*') if p.is_file()))
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('executable');parser.add_argument('--report')
-    args=parser.parse_args();report=verify(args.executable)
+    args=parser.parse_args();report=verify_folder(args.executable) if pathlib.Path(args.executable).is_dir() else verify(args.executable)
     if args.report:pathlib.Path(args.report).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False))
