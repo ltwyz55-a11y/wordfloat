@@ -7,21 +7,24 @@ final class CardEventHandler {
     private let study: StudySession
     private let audio: Pronunciation
     private let openLibrary: () -> Void
+    private let resize: (CGRect) -> Void
+    private var resizing: (edges: CardResizeEdges, frame: CGRect, point: CGPoint)?
     private var monitor: Any?
     private var pendingClick: DispatchWorkItem?
     private var pointer = CardPointerGesture()
     private var scrolling = HorizontalScrollGesture()
     private var tracking = false
 
-    init(panel: NSPanel, study: StudySession, audio: Pronunciation, openLibrary: @escaping () -> Void) {
+    init(panel: NSPanel, study: StudySession, audio: Pronunciation, resize: @escaping (CGRect) -> Void, openLibrary: @escaping () -> Void) {
         self.panel = panel; self.study = study; self.audio = audio; self.openLibrary = openLibrary
+        self.resize = resize
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp, .scrollWheel]) { [weak self] event in
             guard let self else { return event }
             return self.handle(event)
         }
     }
     deinit { if let monitor { NSEvent.removeMonitor(monitor) }; pendingClick?.cancel() }
-    func cancel() { pendingClick?.cancel(); pendingClick = nil; pointer.cancel(); tracking = false }
+    func cancel() { pendingClick?.cancel(); pendingClick = nil; pointer.cancel(); tracking = false; resizing = nil }
     private func handle(_ event: NSEvent) -> NSEvent? {
         guard let panel, event.window === panel else { return event }
         let point = event.locationInWindow
@@ -29,6 +32,11 @@ final class CardEventHandler {
         switch event.type {
         case .leftMouseDown:
             cancel()
+            let edges = CardResizeEdges.hitTest(point,size:panel.frame.size)
+            if !edges.isEmpty {
+                resizing = (edges,panel.frame,panel.convertPoint(toScreen:point))
+                return nil
+            }
             if let root = panel.contentView {
                 var hit = root.hitTest(root.convert(point, from: nil))
                 while let view = hit {
@@ -39,14 +47,17 @@ final class CardEventHandler {
             tracking = content
             if content { pointer.begin(at: point); return nil }
         case .leftMouseDragged:
+            if updateResize(point,in:panel) { return nil }
             if tracking { pointer.move(to: point); return nil }
         case .leftMouseUp:
+            if updateResize(point,in:panel) { cancel(); return nil }
             if tracking {
                 tracking = false
                 perform(pointer.end(at: point, clickCount: event.clickCount))
                 return nil
             }
         case .scrollWheel:
+            if resizing != nil { return nil }
             guard content else { return event }
             cancel()
             let horizontal = abs(event.scrollingDeltaX) > abs(event.scrollingDeltaY)
@@ -59,6 +70,13 @@ final class CardEventHandler {
         default: break
         }
         return event
+    }
+    private func updateResize(_ point: CGPoint, in panel: NSPanel) -> Bool {
+        guard let resizing else { return false }
+        let screen = panel.convertPoint(toScreen:point)
+        let delta = CGPoint(x:screen.x-resizing.point.x,y:screen.y-resizing.point.y)
+        resize(resizing.edges.frame(from:resizing.frame,translation:delta,revealed:study.revealed))
+        return true
     }
     private func perform(_ action: CardPointerAction) {
         switch action {

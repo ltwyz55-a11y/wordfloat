@@ -75,7 +75,9 @@ struct CardView: View {
             .frame(height: 36)
         }
         .foregroundStyle(ink)
-        .frame(width: 260, height: revealed ? 220 : 150)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: previewRevealed == nil ? nil : 260,
+               height: previewRevealed == nil ? nil : revealed ? 220 : 150)
         .background { CardSurface(style: appearance.style, wallpaper: appearance.wallpaper) }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .onHover { hovering = $0 }

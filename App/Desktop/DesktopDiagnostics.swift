@@ -119,9 +119,10 @@ enum DesktopDiagnostics {
         try require(panel.isVisible && !main.isVisible, "floating study action returns to card")
         try await checkLearning(windows: windows, engine: engine, folder: folder)
         try await checkAppearance(app: app, folder: folder)
+        try await checkResizing(windows: windows, engine: engine, folder: folder)
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
-            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact","scrollable-learning-details","inline-English-Chinese-pair-buttons","scroll-reset-on-word-change","example-speech-stops-on-word-change","collapse-after-scrolling"],
+            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact","scrollable-learning-details","inline-English-Chinese-pair-buttons","scroll-reset-on-word-change","example-speech-stops-on-word-change","collapse-after-scrolling","mouse-edge-resize-limits","resize-cancels-pending-click","independent-mode-dimensions"],
             "installedEnglishVoices":SystemSpeechEngine().voices.filter { $0.language.hasPrefix("en") }.map(\.language),
             "notVerified":["physical-trackpad", "physical-audio-output", "full-screen-other-apps", "physical-multiple-monitors"]]
         // Exercise the native close-button path and only record success during actual termination.
@@ -147,6 +148,47 @@ enum DesktopDiagnostics {
 
     private static func descendants(_ view: NSView) -> [NSView] {
         [view] + view.subviews.flatMap { descendants($0) }
+    }
+
+    private static func checkResizing(windows: WindowCoordinator, engine: DiagnosticSpeechEngine, folder: URL) async throws {
+        let panel = windows.panel, study = windows.study
+        study.revealed = false
+        windows.showCard()
+        await pause()
+        let word = study.current?.word.id, spoken = engine.spoken.count
+        func drag(_ delta: CGPoint) async {
+            let point = CGPoint(x:panel.frame.width-10,y:10)
+            let start = panel.convertPoint(toScreen:point)
+            let end = CGPoint(x:start.x+delta.x,y:start.y+delta.y)
+            post(.leftMouseDown,panel:panel,point:point)
+            await pause(0.05)
+            post(.leftMouseDragged,panel:panel,point:panel.convertPoint(fromScreen:end))
+            await pause(0.1)
+            post(.leftMouseUp,panel:panel,point:panel.convertPoint(fromScreen:end))
+            await pause(0.1)
+        }
+        // A resize must also cancel a single click waiting for double-click arbitration.
+        click(panel)
+        await pause(0.03)
+        await drag(CGPoint(x:1500,y:-1500))
+        await pause(NSEvent.doubleClickInterval+0.1)
+        try require(panel.frame.size == CardSizing.maximum && !study.revealed,"maximum resize cancels pending click")
+        try capture(panel,to:folder.appendingPathComponent("card-resize-maximum.png"))
+        await drag(CGPoint(x:-1500,y:1500))
+        try require(panel.frame.size == CardSizing.minimum(revealed:false),"minimum compact resize")
+        try capture(panel,to:folder.appendingPathComponent("card-resize-minimum.png"))
+        await drag(CGPoint(x:180,y:-110))
+        try require(panel.frame.size == CGSize(width:400,height:240),"custom compact size")
+        study.revealed = true; await pause()
+        try require(panel.frame.size == CGSize(width:400,height:220),"expanded mode has independent height")
+        await drag(CGPoint(x:0,y:-110))
+        try capture(panel,to:folder.appendingPathComponent("card-resize-expanded.png"))
+        study.revealed = false; await pause()
+        try require(panel.frame.size == CGSize(width:400,height:240),"collapse restores custom compact size")
+        study.revealed = true; await pause()
+        try require(panel.frame.size == CGSize(width:400,height:330),"expanded height remembered")
+        try require(study.current?.word.id == word && engine.spoken.count == spoken,"resize does not flip or pronounce words")
+        study.revealed = false; await pause()
     }
 
     private static func checkLearning(windows: WindowCoordinator, engine: DiagnosticSpeechEngine, folder: URL) async throws {
