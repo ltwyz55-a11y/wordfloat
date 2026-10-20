@@ -28,18 +28,25 @@ internal sealed class AppController : IDisposable
     internal AppController(Application app,string directory,ISpeechOutput? speech=null)
     {
         this.app=app;this.speech=speech??new DeferredSpeechOutput(()=>new WindowsSpeechOutput());
+        StartupLog.Write("Loading local settings and dictionary");
         Settings=new SettingsStore(Path.Combine(directory,"settings.json"));
         Store=new VocabularyStore(VocabularyStore.ExtractBundled(Path.Combine(directory,"Cache")));
         Study=new StudySession(Store,Settings);Audio=new Pronunciation(this.speech,Settings);
         Appearance=new AppearanceController(Settings,Path.Combine(directory,"Wallpapers"));
         Study.ChangingWord+=Audio.Stop;
+        StartupLog.Write("Building floating card");
         Card=new CardWindow(Study,Audio,Appearance,ShowLibrary);
+        StartupLog.Write("Building library window");
         Library=new LibraryWindow(Study,Audio,Appearance,ShowCard,Quit);
+        Card.ContentRendered+=(_,_)=>StartupLog.Write("READY card");
+        Library.ContentRendered+=(_,_)=>StartupLog.Write("READY library");
         Library.AppearanceFactory=()=>new AppearancePage(Study,Audio,Appearance);
         app.MainWindow=Library;
         using(var icon=typeof(AppController).Assembly.GetManifestResourceStream("WordFloat.Icon"))
             if(icon is not null){var bitmap=BitmapFrame.Create(icon,BitmapCreateOptions.None,BitmapCacheOption.OnLoad);bitmap.Freeze();Library.Icon=bitmap;}
-        trayIcon=Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!)??(Drawing.Icon)Drawing.SystemIcons.Application.Clone();
+        StartupLog.Write("Creating tray controls");
+        using(var icon=typeof(AppController).Assembly.GetManifestResourceStream("WordFloat.Icon"))
+            trayIcon=icon is null?(Drawing.Icon)Drawing.SystemIcons.Application.Clone():new Drawing.Icon(icon);
         tray=new Forms.NotifyIcon{Text=AppInfo.Name,Icon=trayIcon,Visible=true};
         var menu=new Forms.ContextMenuStrip();
         var toggle=menu.Items.Add("显示单词卡片",null,(_,_)=>OnUi(()=>{if(Card.IsVisible)Card.Conceal();else ShowCard();}));
