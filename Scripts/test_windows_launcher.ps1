@@ -53,6 +53,43 @@ try {
     Require ($script:moveAttempts -eq 3 -and (Test-Path -LiteralPath $to)) 'Update did not retry transient process locks'
     Remove-Item function:\Move-Item
     Write-Host 'PASS transient process image locks retried before replacement'
+    foreach ($name in @('WordFloat.ps1','Install.cmd','Start.cmd','SafeMode.cmd','Diagnose.cmd','WordFloatSetup.exe')) {
+        [IO.File]::WriteAllText((Join-Path $temporary $name),'isolated launcher fixture')
+    }
+    $title='浮词';$installDirectory=Join-Path $temporary 'installed'
+    $script:stops=0;$script:desktopRequested=$true;$script:progress=[Collections.Generic.List[int]]::new()
+    function Stop-WordFloat { $script:stops++ }
+    function Register-WordFloat([string]$version,[bool]$CreateDesktopShortcut) {
+        $script:desktopRequested=$CreateDesktopShortcut
+        return [pscustomobject]@{DesktopShortcutCreated=$CreateDesktopShortcut;Warnings=@()}
+    }
+    $originalStart=(Get-Item function:Start-WordFloat).ScriptBlock
+    function Start-WordFloat { throw 'Installation must not launch before the completion page' }
+    $result=Install-WordFloat -SourceRoot $temporary -CreateDesktopShortcut:$false -Progress {param($percent,$message) $script:progress.Add($percent)}
+    Require ($result.Version -eq 'test' -and !$result.DesktopShortcutCreated -and !$script:desktopRequested) 'Desktop shortcut preference ignored'
+    Require ($script:progress[0] -eq 0 -and $script:progress[$script:progress.Count-1] -eq 100) 'Install progress missing start or completion'
+    for ($i=1;$i -lt $script:progress.Count;$i++) { Require ($script:progress[$i] -ge $script:progress[$i-1]) 'Install progress moved backwards' }
+    $null=Test-Payload (Join-Path $installDirectory 'app')
+    Require (Test-Path -LiteralPath (Join-Path $installDirectory 'WordFloatSetup.exe')) 'Installed wizard launcher missing'
+    [IO.File]::WriteAllText((Join-Path $installDirectory 'app/old-marker.txt'),'old app retained')
+    $originalMove=(Get-Item function:Move-Payload).ScriptBlock
+    function Move-Payload([string]$source,[string]$destination) {
+        if ((Split-Path $source -Leaf).StartsWith('.incoming-')) { throw [IO.IOException]::new('simulated replacement failure') }
+        & $originalMove $source $destination
+    }
+    $script:progress.Clear()
+    Must-Fail { Install-WordFloat -SourceRoot $temporary -Progress {param($percent,$message) $script:progress.Add($percent)} } 'Replacement failure accepted'
+    Require (Test-Path -LiteralPath (Join-Path $installDirectory 'app/old-marker.txt')) 'Previous app was not restored after replacement failure'
+    Require (!($script:progress -contains 100)) 'Failed install reported completion'
+    Set-Item function:Move-Payload $originalMove
+    Set-Item function:Start-WordFloat $originalStart
+    Write-Host 'PASS real file installation progress, shortcut choice, deferred launch and replacement rollback'
+    $originalOutput=[Console]::Out;$capture=[IO.StringWriter]::new()
+    try { [Console]::SetOut($capture);Write-InstallEvent @{kind='complete';version='test';directory=$installDirectory;warnings=@()} }
+    finally { [Console]::SetOut($originalOutput) }
+    $event=$capture.ToString().Trim();Require ($event.StartsWith('WORDFLOAT_SETUP:')) 'Worker protocol missing prefix'
+    Require (($event.Substring(16) | ConvertFrom-Json).kind -eq 'complete') 'Worker event JSON invalid'
+    Write-Host 'PASS structured installer completion protocol'
     $dataDirectory = Join-Path $temporary 'data'
     [void][IO.Directory]::CreateDirectory($dataDirectory)
     $script:simulatedExit = $false; $script:simulatedCode = 0; $script:argumentsSeen = @()
