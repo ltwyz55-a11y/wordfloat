@@ -93,7 +93,7 @@ internal static class CardContent
         grid.RowDefinitions.Add(new RowDefinition()); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(36) });
         var handle = new Border { Width=28,Height=3,CornerRadius=new CornerRadius(2),Background=UI.Brush(style.Text,0.25) }; grid.Children.Add(handle);
         var body = Build(study,audio,style,revealed,true); Grid.SetRow(body,1); grid.Children.Add(body);
-        var speaker = UI.Text("◖))",13,UI.Brush(style.Text,0.7)); speaker.HorizontalAlignment=HorizontalAlignment.Center; speaker.VerticalAlignment=VerticalAlignment.Center;
+        var speaker = CardIcons.Speaker(UI.Brush(style.Text,0.78)); speaker.HorizontalAlignment=HorizontalAlignment.Center; speaker.VerticalAlignment=VerticalAlignment.Center;
         Grid.SetRow(speaker,2); grid.Children.Add(speaker); surface.Child=grid; return surface;
     }
 }

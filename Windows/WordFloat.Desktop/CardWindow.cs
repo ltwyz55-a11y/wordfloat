@@ -43,7 +43,8 @@ internal sealed class CardWindow : Window
         var footer = new Grid();
         for (var i=0;i<3;i++) footer.ColumnDefinitions.Add(new ColumnDefinition());
         previous=UI.Button("‹",()=>study.Advance(-1),id:"word.previous"); previous.ToolTip="上一个单词";
-        Speaker=UI.Button("◖))",()=>{ if (study.Current is { } current) audio.Speak(current.Spelling); },id:"word.speak"); Speaker.ToolTip="播放发音";
+        Speaker=UI.Button("播放发音",()=>{ if (study.Current is { } current) audio.Speak(current.Spelling); },id:"word.speak");
+        Speaker.ToolTip="播放发音";Speaker.MinWidth=36;Speaker.MinHeight=30;
         next=UI.Button("›",()=>study.Advance(1),id:"word.next"); next.ToolTip="下一个单词";
         var buttons=new[] {previous,Speaker,next};
         for (var i=0;i<buttons.Length;i++)
@@ -86,6 +87,7 @@ internal sealed class CardWindow : Window
         var ink=UI.Brush(style.Text,0.78);
         grip.Background=UI.Brush(style.Text,0.25);
         previous.Foreground=ink;Speaker.Foreground=ink;next.Foreground=ink;
+        Speaker.Content=CardIcons.Speaker(ink);
         Speaker.IsEnabled=study.Current is not null;
         body.Content=CardContent.Build(study,audio,style,study.Revealed);
         if(renderedRevealed!=study.Revealed)
