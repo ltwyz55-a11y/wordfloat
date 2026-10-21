@@ -23,6 +23,7 @@ static class Program
             Require(File.ReadAllText(Path.Combine(root,"app/中文 words.txt"))=="hello","Payload extraction");
             using(var zip=Archive("../outside.txt"))Fails(()=>SetupArchive.Extract(zip,root,Hash(zip),5,(_,_)=>{}));
             Require(!File.Exists(Path.Combine(Path.GetDirectoryName(root)!,"outside.txt")),"Zip traversal escaped extraction root");
+            using(var zip=Archive("..\\outside.txt"))Fails(()=>SetupArchive.Extract(zip,root,Hash(zip),5,(_,_)=>{}));
             using(var zip=Archive("bad.txt"))Fails(()=>SetupArchive.Extract(zip,root,new string('0',64),5,(_,_)=>{}));
             Require(!File.Exists(Path.Combine(root,"bad.txt")),"Hash failure wrote payload files");
             using(var zip=Archive("too-large.txt"))Fails(()=>SetupArchive.Extract(zip,root,Hash(zip),4,(_,_)=>{}));
@@ -35,6 +36,11 @@ static class Program
             var failed=new InstallProtocol("test");failed.Receive("WORDFLOAT_SETUP:{\"kind\":\"error\",\"message\":\"disk full\"}");Fails(()=>failed.Finish(0));
             Fails(()=>new InstallProtocol("test").Receive("WORDFLOAT_SETUP:{\"kind\":\"complete\",\"version\":\"wrong\",\"directory\":\"example\"}"));
             Fails(()=>new InstallProtocol("test").Receive("WORDFLOAT_SETUP:{\"kind\":\"progress\",\"percent\":101}"));
+            var noMessage=new InstallProtocol("test");noMessage.Receive("WORDFLOAT_SETUP:{\"kind\":\"error\"}");Fails(()=>noMessage.Finish(0));
+            using var metaBytes=new MemoryStream(Encoding.UTF8.GetBytes("{\"product\":\"WordFloat\",\"version\":\"test\",\"installedBytes\":5}"));
+            var metadata=SetupMetadata.Read(metaBytes);
+            using var wrongPayload=new MemoryStream(Encoding.UTF8.GetBytes("{\"product\":\"WordFloat\",\"version\":\"old\"}"));
+            Fails(()=>metadata.ValidatePayload(wrongPayload));
             Console.WriteLine("PASS completion requires correct version, successful process exit and an explicit success event");
             Console.WriteLine("SETUP_CHECKS_PASSED (payload/protocol only; Windows UI not executed)");
         }

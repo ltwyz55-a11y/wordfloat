@@ -23,6 +23,12 @@ internal sealed class SetupMetadata
             throw new InvalidDataException("安装信息无效，请重新下载安装程序。");
         return result;
     }
+    internal void ValidatePayload(Stream source)
+    {
+        var identity=(SetupMetadata?)new DataContractJsonSerializer(typeof(SetupMetadata)).ReadObject(source);
+        if(identity is null||identity.Product!="WordFloat"||identity.Version!=Version)
+            throw new InvalidDataException("安装文件的版本不匹配，请重新下载完整安装包。");
+    }
 }
 
 [DataContract]
@@ -61,7 +67,7 @@ internal sealed class InstallProtocol
             case "progress":
                 if(item.Percent<0||item.Percent>100)throw new InvalidDataException("安装进度无效。");
                 return new InstallProgress(15+(int)Math.Round(item.Percent*0.85),item.Message);
-            case "error":failure=item.Message;break;
+            case "error":failure=string.IsNullOrWhiteSpace(item.Message)?"安装进程报告错误。":item.Message;break;
             case "complete":
                 if(completed is not null||item.Version!=version||string.IsNullOrWhiteSpace(item.Directory))throw new InvalidDataException("安装结果与当前版本不一致。");
                 completed=item;break;
@@ -95,7 +101,7 @@ internal static class SetupArchive
         long bytes=0;
         foreach(var entry in archive.Entries)
         {
-            var path=Path.GetFullPath(Path.Combine(root,entry.FullName.Replace('/',Path.DirectorySeparatorChar)));
+            var path=Path.GetFullPath(Path.Combine(root,entry.FullName.Replace('/',Path.DirectorySeparatorChar).Replace('\\',Path.DirectorySeparatorChar)));
             if(entry.FullName.Contains(":")||!path.StartsWith(root,StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("安装资源包含无效路径。");
             if(entry.FullName.EndsWith("/",StringComparison.Ordinal)){System.IO.Directory.CreateDirectory(path);continue;}
             bytes=checked(bytes+entry.Length);
