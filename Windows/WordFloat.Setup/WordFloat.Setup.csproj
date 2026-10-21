@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>WordFloatSetup</AssemblyName>
+    <Version>1.1.1</Version>
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>../WordFloat.Desktop/Assets/AppIcon.ico</ApplicationIcon>
+    <ApplicationManifest>../WordFloat.Desktop/app.manifest</ApplicationManifest>
+    <GenerateBindingRedirectsOutputType>false</GenerateBindingRedirectsOutputType>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <UseSharedCompilation>false</UseSharedCompilation>
+    <EmbedPayload Condition="'$(EmbedPayload)'==''">false</EmbedPayload>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <EmbeddedResource Include="../../work/windows-setup/metadata.json" LogicalName="WordFloat.Setup.Metadata" />
+    <EmbeddedResource Include="../../work/windows-setup/payload.zip" LogicalName="WordFloat.Setup.Payload" Condition="'$(EmbedPayload)'=='true'" />
+    <EmbeddedResource Include="../WordFloat.Desktop/Assets/AppIcon.ico" LogicalName="WordFloat.Setup.Icon" />
+  </ItemGroup>
+</Project>
