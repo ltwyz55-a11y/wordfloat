@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -88,6 +89,10 @@ internal static class WindowsDiagnostics
                     NativeWindow.DiagnosticDarkMode=true;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"library-dark.png"));
                     study.SelectBook("cet4");study.Jump("photograph");controller.ShowCard();card.ApplyAction(CardAction.SingleClick);await Pause();
                     var scroll=card.Scroller!;Require(scroll.ExtentHeight>scroll.ViewportHeight*3,"Complete details remain scrollable");
+                    var vertical=Descendants(scroll).OfType<ScrollBar>().First(b=>b.Orientation==Orientation.Vertical&&b.IsVisible);
+                    ScrollBar.PageDownCommand.Execute(null,vertical);await Pause();
+                    Require(scroll.VerticalOffset>0&&study.Current!.Id=="photograph","Custom scrollbar page command preserves word");
+                    checks.Add("themed-scrollbar-page-navigation");
                     scroll.ScrollToVerticalOffset(140);await Pause();Require(scroll.VerticalOffset>0&&study.Current!.Id=="photograph","Vertical scroll preserves word");Capture(card,Path.Combine(folder,"learning-roots.png"));
                     var example=study.Details.Examples[0];
                     foreach(var (kind,expected) in new[]{("english",new[]{example.English}),("chinese",new[]{example.Chinese}),("pair",new[]{example.English,example.Chinese})})
@@ -100,7 +105,11 @@ internal static class WindowsDiagnostics
                     var stopCount=engine.Stops;card.ApplyAction(CardAction.Next);await Pause();Require(!study.Revealed&&engine.Stops>stopCount,"Flip stops old speech");
                     card.ApplyAction(CardAction.SingleClick);await Pause();Require(card.Scroller!.VerticalOffset==0,"New word starts at top");checks.Add("complete-details-bilingual-controls-and-scroll-reset");
                     study.Revealed=false;
-                    foreach(var preset in CardPreset.All){controller.Appearance.Apply(preset);await Pause();Capture(card,Path.Combine(folder,"theme-"+preset.Id+".png"));}
+                    foreach(var preset in CardPreset.All)
+                    {
+                        controller.Appearance.Apply(preset);await Pause();Capture(card,Path.Combine(folder,"theme-"+preset.Id+".png"));
+                        study.Revealed=true;await Pause();Capture(card,Path.Combine(folder,"theme-"+preset.Id+"-expanded.png"));study.Revealed=false;
+                    }
                     var bitmap=BitmapSource.Create(2,2,96,96,PixelFormats.Bgra32,null,new byte[]{70,120,80,255,90,150,100,255,80,140,90,255,60,110,70,255},8);
                     var png=new PngBitmapEncoder();png.Frames.Add(BitmapFrame.Create(bitmap));using var bytes=new MemoryStream();png.Save(bytes);controller.Appearance.SaveWallpaper(bytes.ToArray());await Pause();Capture(card,Path.Combine(folder,"theme-wallpaper.png"));
                     checks.Add("six-presets-and-managed-wallpaper-rendering");

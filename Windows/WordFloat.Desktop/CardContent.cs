@@ -82,7 +82,7 @@ internal static class CardContent
         if (details.EnglishDefinition.Length>0) { Section("英英释义"); Paragraph(details.EnglishDefinition); }
         Paragraph("词典释义及词形：ECDICT · MIT\n词源及补充义项：维基词典贡献者\n例句可能使用不同词义；来源语料未经逐句审校。",size:9);
         Source("词源及补充义项许可","https://creativecommons.org/licenses/by-sa/4.0/","dictionary.license");
-        return new ScrollViewer { Content=stack, VerticalScrollBarVisibility=ScrollBarVisibility.Auto, HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled, PanningMode=PanningMode.VerticalOnly, CanContentScroll=false };
+        return CardScrolling.Create(stack,style);
     }
     internal static Border Preview(StudySession study, Pronunciation audio, AppearanceController appearance, bool revealed)
     {
