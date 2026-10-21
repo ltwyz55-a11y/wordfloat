@@ -2,6 +2,7 @@
 """Package a verified, self-contained Windows installer without creating a remote release."""
 import argparse, hashlib, json, pathlib, re, shutil, subprocess, tempfile, zipfile
 from verify_windows import verify_folder
+from build_windows_setup import metadata,build,verify,WORK
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 
 def package(publish,destination):
@@ -10,14 +11,20 @@ def package(publish,destination):
     version=re.search(r'Version = "([^"]+)"',(ROOT/'Windows/WordFloat.Core/AppInfo.cs').read_text(encoding='utf-8'))[1]
     destination=pathlib.Path(destination);destination.mkdir(parents=True,exist_ok=True)
     archive=destination/f'浮词-Windows-x64-{version}.zip'
+    installer=destination/f'浮词-Windows-安装-{version}.exe'
     report['version']=version
     report['sourceCommit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    metadata(version,report['bytes'])
+    host=build(False,version);host_report=verify(host)
     with tempfile.TemporaryDirectory(prefix='windows-package.',dir=ROOT/'work') as temporary:
         stage=pathlib.Path(temporary)/f'浮词-Windows-{version}';stage.mkdir()
         shutil.copytree(source,stage/'app')
         (stage/'app/package.json').write_text(json.dumps(dict(product='WordFloat',version=version,architecture='win-x64',files=report['files']),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         for launcher in (ROOT/'Windows/Launcher').iterdir():
-            if launcher.is_file():shutil.copy2(launcher,stage/launcher.name)
+            if launcher.is_file():
+                if launcher.suffix=='.cmd':(stage/launcher.name).write_bytes(('\r\n'.join(launcher.read_text(encoding='ascii').splitlines())+'\r\n').encode('ascii'))
+                else:shutil.copy2(launcher,stage/launcher.name)
+        shutil.copy2(host,stage/'WordFloatSetup.exe')
         for src,name in [('Windows/README.md','Windows使用说明.md'),('Windows/VALIDATION.md','Windows验收记录.md'),('DATA-NOTICE.md','词库来源.md')]:
             shutil.copy2(ROOT/src,stage/name);shutil.copy2(ROOT/src,destination/name)
         shutil.copytree(ROOT/'Windows/Licenses',stage/'第三方许可')
@@ -35,10 +42,18 @@ def package(publish,destination):
             assert z.read(stage.name+'/WordFloat.ps1').startswith(b'\xef\xbb\xbf'),'Windows PowerShell requires UTF-8 BOM for Chinese strings'
             for name in ('Install.cmd','Start.cmd','SafeMode.cmd','Diagnose.cmd'):
                 assert b'\r\n' in z.read(stage.name+'/'+name)
+        payload=WORK/'payload.zip'
+        with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+            for path in sorted(stage.rglob('*')):
+                if path.is_file():z.write(path,path.relative_to(stage))
+        metadata(version,report['bytes'],payload)
+        setup=build(True,version);setup_report=verify(setup,payload);setup_report['sourceCommit']=report['sourceCommit'];setup_report['folderLauncher']=host_report
+        shutil.copy2(setup,installer)
     (destination/'EXE资源校验.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    files=[archive.name,'Windows使用说明.md','Windows验收记录.md','词库来源.md','EXE资源校验.json']
+    (destination/'Setup资源校验.json').write_text(json.dumps(setup_report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    files=[archive.name,installer.name,'Windows使用说明.md','Windows验收记录.md','词库来源.md','EXE资源校验.json','Setup资源校验.json']
     (destination/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((destination/n).read_bytes()).hexdigest()+'  '+n+'\n' for n in files),encoding='utf-8')
-    print(json.dumps(dict(package=str(archive),bytes=archive.stat().st_size,sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),nativeWindowsRun='not performed'),ensure_ascii=False))
+    print(json.dumps(dict(installer=str(installer),installerBytes=installer.stat().st_size,package=str(archive),bytes=archive.stat().st_size,sha256=hashlib.sha256(installer.read_bytes()).hexdigest(),nativeWindowsRun='not performed'),ensure_ascii=False))
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--publish-dir',default=str(ROOT/'work/windows-folder'));parser.add_argument('--destination',default=str(ROOT/'outputs/Windows'))

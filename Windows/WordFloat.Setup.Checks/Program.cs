@@ -14,7 +14,7 @@ static class Program
         var data=new MemoryStream();using(var zip=new ZipArchive(data,ZipArchiveMode.Create,true))using(var writer=new StreamWriter(zip.CreateEntry(path).Open(),new UTF8Encoding(false)))writer.Write("hello");data.Position=0;return data;
     }
     private static string Hash(MemoryStream stream){using var sha=SHA256.Create();var value=Convert.ToHexString(sha.ComputeHash(stream));stream.Position=0;return value;}
-    private static void Main()
+    private static void Main(string[] args)
     {
         var root=Path.Combine(Path.GetTempPath(),"wordfloat-setup-checks-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
         try
@@ -42,6 +42,22 @@ static class Program
             using var wrongPayload=new MemoryStream(Encoding.UTF8.GetBytes("{\"product\":\"WordFloat\",\"version\":\"old\"}"));
             Fails(()=>metadata.ValidatePayload(wrongPayload));
             Console.WriteLine("PASS completion requires correct version, successful process exit and an explicit success event");
+            if(args.Length==2)
+            {
+                using var meta=File.OpenRead(args[1]);var full=SetupMetadata.Read(meta);
+                var extracted=Path.Combine(root,"full-package");Directory.CreateDirectory(extracted);
+                using(var source=File.OpenRead(args[0]))SetupArchive.Extract(source,extracted,full.PayloadSha256,full.PayloadBytes,(_,_)=>{});
+                var manifestPath=Path.Combine(extracted,"app","package.json");
+                using(var identity=File.OpenRead(manifestPath))full.ValidatePayload(identity);
+                using var manifest=System.Text.Json.JsonDocument.Parse(File.ReadAllText(manifestPath));var count=0;
+                foreach(var item in manifest.RootElement.GetProperty("files").EnumerateObject())
+                {
+                    using var content=File.OpenRead(Path.Combine(extracted,"app",item.Name));
+                    Require(string.Equals(Convert.ToHexString(SHA256.HashData(content)),item.Value.GetString(),StringComparison.OrdinalIgnoreCase),"Extracted payload mismatch: "+item.Name);count++;
+                }
+                Require(File.Exists(Path.Combine(extracted,"WordFloatSetup.exe")),"Embedded folder wizard missing");
+                Console.WriteLine("PASS full installer payload extraction and "+count+" application/runtime file checksums");
+            }
             Console.WriteLine("SETUP_CHECKS_PASSED (payload/protocol only; Windows UI not executed)");
         }
         finally{Directory.Delete(root,true);}
