@@ -79,6 +79,32 @@ public final class VocabularyStore {
             return BookEntry(bookID: bookID, word: word, domainMeaning: sqlite3_column_type(row, 6) == SQLITE_NULL ? nil : text(row, 6), position: Int(sqlite3_column_int(row, 7)))
         }
     }
+    /// Searches the whole offline dictionary, independently of the selected study book.
+    public func lookup(_ search: String, limit: Int = 100) throws -> [VocabularyWord] {
+        let term = search.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !term.isEmpty, limit > 0 else { return [] }
+        return try query("""
+        SELECT w.id,w.spelling,w.phonetic,w.part_of_speech,w.meaning,w.frequency FROM words w
+        WHERE instr(lower(w.spelling),lower(?))>0 OR instr(w.meaning,?)>0
+        OR w.id IN (SELECT e.word_id FROM entries e WHERE instr(e.domain_meaning,?)>0)
+        ORDER BY CASE WHEN lower(w.spelling)=lower(?) THEN 0 WHEN instr(lower(w.spelling),lower(?))=1 THEN 1 ELSE 2 END,
+        w.frequency IS NULL,w.frequency,lower(w.spelling),w.id LIMIT ?
+        """, [term, term, term, term, term, String(min(limit, 100))]) { row in
+            VocabularyWord(id: text(row, 0), spelling: text(row, 1), phonetic: text(row, 2), partOfSpeech: text(row, 3),
+                meaning: text(row, 4), frequency: sqlite3_column_type(row, 5) == SQLITE_NULL ? nil : Int(sqlite3_column_int(row, 5)))
+        }
+    }
+    public func memberships(wordID: String) throws -> [BookEntry] {
+        try query("""
+        SELECT e.book_id,w.id,w.spelling,w.phonetic,w.part_of_speech,w.meaning,w.frequency,e.domain_meaning,e.position
+        FROM entries e JOIN words w ON w.id=e.word_id JOIN books b ON b.id=e.book_id
+        WHERE w.id=? ORDER BY b.sort_order,b.id
+        """, [wordID]) { row in
+            let word = VocabularyWord(id: text(row, 1), spelling: text(row, 2), phonetic: text(row, 3), partOfSpeech: text(row, 4),
+                meaning: text(row, 5), frequency: sqlite3_column_type(row, 6) == SQLITE_NULL ? nil : Int(sqlite3_column_int(row, 6)))
+            return BookEntry(bookID: text(row, 0), word: word, domainMeaning: sqlite3_column_type(row, 7) == SQLITE_NULL ? nil : text(row, 7), position: Int(sqlite3_column_int(row, 8)))
+        }
+    }
     public func learningDetails(wordID: String) throws -> LearningDetails {
         try query("SELECT payload FROM learning_details WHERE word_id=?", [wordID]) { row in
             guard let data = text(row, 0).data(using: .utf8) else {

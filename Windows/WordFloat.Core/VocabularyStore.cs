@@ -48,6 +48,25 @@ public sealed class VocabularyStore : IDisposable
             """, bookId, query, query, query).Select(r => new BookEntry(r[0]!, r[1]!, r[2]!, r[3]!, r[4]!, r[5]!,
                 r[6] is null ? null : int.Parse(r[6]!, CultureInfo.InvariantCulture), r[7], int.Parse(r[8]!, CultureInfo.InvariantCulture))).ToArray();
     }
+    public IReadOnlyList<DictionaryWord> Lookup(string search, int limit = 100)
+    {
+        var query = search.Trim();
+        if(query.Length==0 || limit<=0)return [];
+        return database.Read("""
+            SELECT w.id,w.spelling,w.phonetic,w.part_of_speech,w.meaning,w.frequency FROM words w
+            WHERE instr(lower(w.spelling),lower(?))>0 OR instr(w.meaning,?)>0
+            OR w.id IN (SELECT e.word_id FROM entries e WHERE instr(e.domain_meaning,?)>0)
+            ORDER BY CASE WHEN lower(w.spelling)=lower(?) THEN 0 WHEN instr(lower(w.spelling),lower(?))=1 THEN 1 ELSE 2 END,
+            w.frequency IS NULL,w.frequency,lower(w.spelling),w.id LIMIT ?
+            """, query,query,query,query,query,Math.Min(limit,100).ToString(CultureInfo.InvariantCulture))
+            .Select(r=>new DictionaryWord(r[0]!,r[1]!,r[2]!,r[3]!,r[4]!,r[5] is null?null:int.Parse(r[5]!,CultureInfo.InvariantCulture))).ToArray();
+    }
+    public IReadOnlyList<BookEntry> Memberships(string wordId) => database.Read("""
+        SELECT e.book_id,w.id,w.spelling,w.phonetic,w.part_of_speech,w.meaning,w.frequency,e.domain_meaning,e.position
+        FROM entries e JOIN words w ON w.id=e.word_id JOIN books b ON b.id=e.book_id
+        WHERE w.id=? ORDER BY b.sort_order,b.id
+        """,wordId).Select(r=>new BookEntry(r[0]!,r[1]!,r[2]!,r[3]!,r[4]!,r[5]!,
+            r[6] is null?null:int.Parse(r[6]!,CultureInfo.InvariantCulture),r[7],int.Parse(r[8]!,CultureInfo.InvariantCulture))).ToArray();
     public LearningDetails Details(string wordId)
     {
         var rows = database.Read("SELECT payload FROM learning_details WHERE word_id=?", wordId);

@@ -13,6 +13,7 @@ public sealed record BookEntry(string BookId, string Id, string Spelling, string
     public string Meaning => string.IsNullOrWhiteSpace(DomainMeaning) ? DictionaryMeaning : DomainMeaning;
     public override string ToString() => Spelling;
 }
+public sealed record DictionaryWord(string Id, string Spelling, string Phonetic, string PartOfSpeech, string Meaning, int? Frequency);
 public sealed record DictionarySense(string PartOfSpeech, string Text, string SourceURL);
 public sealed record EtymologyNote(string Text, string SourceURL);
 public sealed record BilingualExample(string Id, string English, string Chinese, string Attribution, string SourceURL);

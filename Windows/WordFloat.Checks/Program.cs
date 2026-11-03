@@ -38,6 +38,21 @@ internal static partial class Program
                 Require(store.Entries("automotive", "' OR 1=1 --").Count == 0, "Bound query");
                 Require(store.Entries("missing").Count == 0, "Missing book");
             });
+            Check("global dictionary lookup ranks exact words and preserves distinct domain memberships", () =>
+            {
+                Require(store.Lookup("  GREENHOUSE\n").First().Id=="greenhouse", "Exact case-insensitive match");
+                var memberships=store.Memberships("greenhouse");
+                Require(memberships.Count>1 && memberships.Any(e=>e.BookId=="automotive" && e.Meaning.Contains("车窗")), "Domain membership");
+                Require(store.Lookup("车窗").Any(w=>w.Id=="greenhouse"), "Global domain lookup");
+                var results=store.Lookup("a",1000);
+                Require(results.Count==100 && results.Select(w=>w.Id).Distinct().Count()==100, "Bounded unique dictionary words");
+                Require(store.Lookup("a",3).Count==3 && store.Lookup("a",0).Count==0, "Result limit");
+                foreach(var query in new[]{" ","%_","' OR 1=1 --","zz-no-dictionary-result"})Require(store.Lookup(query).Count==0,"Literal or empty lookup");
+                Require(store.Memberships("__not_a_dictionary_word__").Count==0,"Missing membership");
+                var settings=new SettingsStore(Path.Combine(temporary,"lookup-settings.json"));
+                var study=new StudySession(store,settings);study.Advance(4);var current=study.Current;
+                store.Lookup("photograph");store.Memberships("photograph");Require(study.Current==current,"Lookup changed progress");
+            });
             Check("all 12304 learning payloads equal the Mac source", () =>
             {
                 using var source = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "Data/learning-details.json")));
