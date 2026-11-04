@@ -87,6 +87,16 @@ internal static class WindowsDiagnostics
                     Require(controller.Library.MatchingBooks("ielts").Single().Id=="ielts","English book filter");checks.Add("library-selection-and-book-search");
                     controller.Library.ShowBooks();Capture(controller.Library,Path.Combine(folder,"library-light.png"));
                     NativeWindow.DiagnosticDarkMode=true;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"library-dark.png"));
+                    var lookupCurrent=study.Current;var lookupSpeech=engine.Spoken.Count;
+                    controller.Library.SearchDictionary("  PHOTOGRAPH  ");await Pause();
+                    Require(controller.Library.DictionarySelection=="photograph"&&engine.Spoken.Count==lookupSpeech,"Exact dictionary lookup stays silent");
+                    var dictionarySpeaker=Descendants(controller.Library).OfType<Button>().First(b=>b.Tag as string=="dictionary.speak");dictionarySpeaker.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    Require(engine.Spoken.Last().Text=="photograph"&&study.Current==lookupCurrent,"Dictionary speech and preserved study position");Capture(controller.Library,Path.Combine(folder,"dictionary-dark.png"));
+                    NativeWindow.DiagnosticDarkMode=false;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"dictionary-light.png"));
+                    controller.Library.SearchDictionary("车窗");await Pause();Capture(controller.Library,Path.Combine(folder,"dictionary-chinese.png"));
+                    controller.Library.SearchDictionary("zz-no-dictionary-result");await Pause();Require(controller.Library.DictionarySelection is null,"No stale selection for empty lookup");
+                    Require(!Descendants(controller.Library).OfType<Button>().Any(b=>b.Tag as string=="dictionary.speak"),"No stale speaker for empty lookup");Capture(controller.Library,Path.Combine(folder,"dictionary-empty.png"));
+                    controller.Library.SearchDictionary("");await Pause();Require(study.Current==lookupCurrent,"Clearing lookup preserves progress");checks.Add("global-dictionary-lookup-manual-speech-and-clear");
                     study.SelectBook("cet4");study.Jump("photograph");controller.ShowCard();card.ApplyAction(CardAction.SingleClick);await Pause();
                     var scroll=card.Scroller!;Require(scroll.ExtentHeight>scroll.ViewportHeight*3,"Complete details remain scrollable");
                     var vertical=Descendants(scroll).OfType<ScrollBar>().First(b=>b.Orientation==Orientation.Vertical&&b.IsVisible);

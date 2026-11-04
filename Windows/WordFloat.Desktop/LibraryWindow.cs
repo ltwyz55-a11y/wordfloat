@@ -21,6 +21,10 @@ internal sealed class LibraryWindow : Window
     private TextBlock progress = new(), status = new();
     private string category="all", page="books", bookQuery="", wordQuery="";
     private bool ready, allowClose;
+    private TextBox lookupInput = new();
+    private string lookupQuery = "";
+    private DictionaryPage? dictionaryPage;
+    private bool HasLookup => lookupQuery.Trim().Length > 0;
     private Brush Ink => UI.Brush(NativeWindow.IsDark?"#EDF3EF":"#253B31");
     private Brush Muted => UI.Brush(NativeWindow.IsDark?"#A6B6AC":"#738078");
     private Brush Panel => UI.Brush(NativeWindow.IsDark?"#29322D":"#FFFFFF");
@@ -30,14 +34,16 @@ internal sealed class LibraryWindow : Window
         this.study=study;this.audio=audio;this.appearance=appearance;this.returnToCard=returnToCard;this.quit=quit;
         Title="浮词 · 单词本";Width=960;Height=700;MinWidth=840;MinHeight=600;WindowStartupLocation=WindowStartupLocation.CenterScreen;
         FontFamily=new FontFamily("Segoe UI, Microsoft YaHei UI");
-        searchTimer.Tick+=(_,_)=>{searchTimer.Stop();if(page=="words")ShowWords();else if(page=="books")RefreshBooks();};
+        searchTimer.Tick+=(_,_)=>{searchTimer.Stop();if(HasLookup)ShowLookup();else if(page=="words")ShowWords();else if(page=="books")RefreshBooks();};
         study.Changed+=StudyChanged;audio.MessageChanged+=ShowStatus;
         Closing+=(_,e)=>{if(!allowClose){e.Cancel=true;Dispatcher.BeginInvoke(quit);}};
         Closed+=(_,_)=>{searchTimer.Stop();study.Changed-=StudyChanged;audio.MessageChanged-=ShowStatus;};
         PreviewKeyDown+=(_,e)=>
         {
+            if(Keyboard.Modifiers==ModifierKeys.Control && e.Key==Key.F){lookupInput.Focus();lookupInput.SelectAll();e.Handled=true;return;}
+            if(e.Key==Key.Escape && HasLookup){lookupInput.Clear();lookupInput.Focus();e.Handled=true;return;}
             if(e.Key==Key.Escape && page=="words"){page="books";ShowPage();e.Handled=true;}
-            if(Keyboard.Modifiers==ModifierKeys.Control && e.Key==Key.D1){page="books";ShowPage();e.Handled=true;}
+            if(Keyboard.Modifiers==ModifierKeys.Control && e.Key==Key.D1){ShowBooks();e.Handled=true;}
             if(Keyboard.Modifiers==ModifierKeys.Control && e.Key==Key.D2){returnToCard();e.Handled=true;}
             if(Keyboard.Modifiers==ModifierKeys.Control && e.Key==Key.Q){quit();e.Handled=true;}
         };
@@ -54,9 +60,10 @@ internal sealed class LibraryWindow : Window
         var subtitle=UI.Text("让单词留在眼前",11,Muted);subtitle.Margin=new Thickness(0,6,0,26);brand.Children.Add(subtitle);
         foreach(var (title,id) in new[]{("全部词本","all"),("考试词汇","exam"),("专业领域","professional")})
         {
-            var button=UI.Button(title,()=>{category=id;page="books";ShowPage();},Ink);button.HorizontalContentAlignment=HorizontalAlignment.Left;button.Margin=new Thickness(0,2,0,2);brand.Children.Add(button);
+            var button=UI.Button(title,()=>{category=id;ShowBooks();},Ink);button.HorizontalContentAlignment=HorizontalAlignment.Left;button.Margin=new Thickness(0,2,0,2);brand.Children.Add(button);
         }
-        var appearanceButton=UI.Button("卡片外观",()=>{page="appearance";ShowPage();},Ink);appearanceButton.Margin=new Thickness(0,20,0,0);brand.Children.Add(appearanceButton);
+        brand.Children.Add(UI.Button("查单词  ·  Ctrl+F",()=>{lookupInput.Focus();lookupInput.SelectAll();},Ink));
+        var appearanceButton=UI.Button("卡片外观",ShowAppearance,Ink);appearanceButton.Margin=new Thickness(0,20,0,0);brand.Children.Add(appearanceButton);
         DockPanel.SetDock(brand,Dock.Top);sidebar.Children.Add(brand);
         var bottom=new StackPanel();
         progress=UI.Text("",11,Muted);progress.Margin=new Thickness(0,0,0,14);bottom.Children.Add(progress);
@@ -70,24 +77,49 @@ internal sealed class LibraryWindow : Window
         var sideBorder=new Border{Background=UI.Brush(NativeWindow.IsDark?"#242D27":"#EEF2EC"),Child=sidebar};grid.Children.Add(sideBorder);
         var content=new DockPanel{Margin=new Thickness(28,25,28,16)};
         status=UI.Text("",11,Muted);status.Margin=new Thickness(0,10,0,0);DockPanel.SetDock(status,Dock.Bottom);content.Children.Add(status);
+        var lookupBar=new DockPanel{Margin=new Thickness(0,0,0,20)};
+        var clear=UI.Button("清空",()=>{lookupInput.Clear();lookupInput.Focus();},Muted,"dictionary.clear");DockPanel.SetDock(clear,Dock.Right);lookupBar.Children.Add(clear);
+        var label=UI.Text("查单词",13,Ink);label.VerticalAlignment=VerticalAlignment.Center;label.Margin=new Thickness(0,0,10,0);DockPanel.SetDock(label,Dock.Left);lookupBar.Children.Add(label);
+        lookupInput=SearchBox(lookupQuery,"查单词或中文释义 · 全部词库",q=>
+        {
+            lookupQuery=q;audio.Stop();searchTimer.Stop();
+            if(!HasLookup)ShowPage();
+            else {center.Content=UI.Text("正在查词…",13,Muted);searchTimer.Start();}
+        });
+        lookupInput.Margin=new Thickness(0);lookupInput.Tag="dictionary.search";
+        lookupInput.KeyDown+=(_,e)=>{if(e.Key==Key.Enter){searchTimer.Stop();if(HasLookup)ShowLookup();e.Handled=true;}};
+        var inputHost=new Grid();inputHost.Children.Add(lookupInput);
+        var placeholder=UI.Text("输入英文或中文释义 · 全部词库",12,Muted);placeholder.Margin=new Thickness(11,0,0,0);placeholder.VerticalAlignment=VerticalAlignment.Center;placeholder.IsHitTestVisible=false;
+        placeholder.Visibility=lookupQuery.Length==0?Visibility.Visible:Visibility.Collapsed;inputHost.Children.Add(placeholder);
+        lookupInput.TextChanged+=(_,_)=>placeholder.Visibility=lookupInput.Text.Length==0?Visibility.Visible:Visibility.Collapsed;
+        lookupBar.Children.Add(inputHost);DockPanel.SetDock(lookupBar,Dock.Top);content.Children.Add(lookupBar);
         center=new ContentControl{HorizontalContentAlignment=HorizontalAlignment.Stretch,VerticalContentAlignment=VerticalAlignment.Stretch};content.Children.Add(center);Grid.SetColumn(content,1);grid.Children.Add(content);
         Content=grid;ShowPage();StudyChanged();ShowStatus();
     }
     private void StudyChanged()
     {
         progress.Text=study.CurrentBook is { } book?$"{book.Name} · {study.Index+1:N0} / {book.Count:N0}\n{study.Current?.Spelling}":"选择一个词本";
-        if(ready && page=="books")RefreshBooks();
+        if(ready && page=="books" && !HasLookup)RefreshBooks();
     }
     private void ShowStatus()=>status.Text=audio.Message??study.Settings.LastError??"离线词库 · 学习进度自动保存在本机";
-    internal void ShowBooks(){page="books";ShowPage();}
-    internal void ShowAppearance(){page="appearance";ShowPage();}
+    internal void ShowBooks(){page="books";lookupInput.Clear();ShowPage();}
+    internal void ShowAppearance(){page="appearance";lookupInput.Clear();ShowPage();}
     private void ShowPage()
     {
         searchTimer.Stop();
+        if(HasLookup){ShowLookup();return;}
         if(page=="appearance")center.Content=AppearanceFactory?.Invoke()??UI.Text("卡片外观",22,Ink);
         else if(page=="words")ShowWords();
         else ShowBookPage();
     }
+    private void ShowLookup()
+    {
+        if(!HasLookup)return;
+        if(center.Content is not DictionaryPage)dictionaryPage=new DictionaryPage(study,audio,Ink,Muted,Panel);
+        center.Content=dictionaryPage;dictionaryPage!.Refresh(lookupQuery);
+    }
+    internal void SearchDictionary(string query){lookupInput.Text=query;searchTimer.Stop();if(HasLookup)ShowLookup();}
+    internal string? DictionarySelection => dictionaryPage?.SelectedWord?.Id;
     private TextBox SearchBox(string text,string placeholder,Action<string> changed)
     {
         var input=new TextBox{Text=text,ToolTip=placeholder,FontSize=13,Padding=new Thickness(10,8,10,8),Margin=new Thickness(0,0,0,16),Background=Panel,Foreground=Ink,CaretBrush=Ink,BorderBrush=UI.Brush(NativeWindow.IsDark?"#445248":"#D7DED6")};
