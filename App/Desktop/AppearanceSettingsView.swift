@@ -5,6 +5,7 @@ import WordCore
 
 @MainActor
 final class LibraryNavigation: ObservableObject {
+    @Published var lookupQuery = ""
     @Published var showsAppearance = false
 }
 

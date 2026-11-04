@@ -96,6 +96,7 @@ enum DesktopDiagnostics {
         main.appearance = NSAppearance(named: .darkAqua)
         await pause()
         try capture(main, to: folder.appendingPathComponent("library-dark.png"))
+        try await checkDictionary(app: app, engine: engine, folder: folder)
         app.showCard()
         let oldIndex = study.index
         let y = panel.frame.height - 70
@@ -122,7 +123,7 @@ enum DesktopDiagnostics {
         try await checkResizing(windows: windows, engine: engine, folder: folder)
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
-            "checks":["native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact","scrollable-learning-details","inline-English-Chinese-pair-buttons","scroll-reset-on-word-change","example-speech-stops-on-word-change","collapse-after-scrolling","mouse-edge-resize-limits","resize-cancels-pending-click","independent-mode-dimensions"],
+            "checks":["global-dictionary-search-and-speech","lookup-preserves-study-position","native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact","scrollable-learning-details","inline-English-Chinese-pair-buttons","scroll-reset-on-word-change","example-speech-stops-on-word-change","collapse-after-scrolling","mouse-edge-resize-limits","resize-cancels-pending-click","independent-mode-dimensions"],
             "installedEnglishVoices":SystemSpeechEngine().voices.filter { $0.language.hasPrefix("en") }.map(\.language),
             "notVerified":["physical-trackpad", "physical-audio-output", "full-screen-other-apps", "physical-multiple-monitors"]]
         // Exercise the native close-button path and only record success during actual termination.
@@ -148,6 +149,36 @@ enum DesktopDiagnostics {
 
     private static func descendants(_ view: NSView) -> [NSView] {
         [view] + view.subviews.flatMap { descendants($0) }
+    }
+
+    private static func checkDictionary(app: AppDelegate, engine: DiagnosticSpeechEngine, folder: URL) async throws {
+        guard let main = app.mainWindow, let study = app.windows?.study else { throw DiagnosticError(message: "Missing dictionary window") }
+        let current = study.current, count = engine.spoken.count
+        app.libraryNavigation.lookupQuery = "  PHOTOGRAPH  "
+        main.appearance = NSAppearance(named: .aqua)
+        await pause(0.6)
+        guard let root = main.contentView, let button = descendants(root).compactMap({ $0 as? NSButton }).first(where: { $0.identifier?.rawValue == "dictionary.speak" }) else {
+            throw DiagnosticError(message: "Missing dictionary pronunciation button")
+        }
+        try require(engine.spoken.count == count, "typing lookup does not play speech")
+        button.performClick(nil)
+        await pause()
+        try require(engine.spoken.last == "photograph" && engine.spoken.count == count + 1, "dictionary speaker uses searched word")
+        try require(study.current == current, "dictionary lookup preserves learning position")
+        try capture(main, to: folder.appendingPathComponent("dictionary-light.png"))
+        main.appearance = NSAppearance(named: .darkAqua)
+        await pause()
+        try capture(main, to: folder.appendingPathComponent("dictionary-dark.png"))
+        app.libraryNavigation.lookupQuery = "车窗"
+        await pause(0.4)
+        try capture(main, to: folder.appendingPathComponent("dictionary-chinese.png"))
+        app.libraryNavigation.lookupQuery = "zz-no-dictionary-result"
+        await pause(0.4)
+        try require(!descendants(root).compactMap({ $0 as? NSButton }).contains { $0.identifier?.rawValue == "dictionary.speak" }, "empty lookup removes stale pronunciation")
+        try capture(main, to: folder.appendingPathComponent("dictionary-empty.png"))
+        app.libraryNavigation.lookupQuery = ""
+        await pause()
+        try require(study.current == current, "clearing lookup preserves study selection")
     }
 
     private static func checkResizing(windows: WindowCoordinator, engine: DiagnosticSpeechEngine, folder: URL) async throws {

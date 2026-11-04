@@ -13,6 +13,7 @@ struct LibraryView: View {
     @State private var error: String?
     @State private var bookQuery = ""
     @State private var browsingWords = false
+    @FocusState private var lookupFocused: Bool
     private var books: [VocabularyBook] { BookSearch.filter(study.books, category: category, query: bookQuery) }
 
     var body: some View {
@@ -22,6 +23,12 @@ struct LibraryView: View {
             if navigation.showsAppearance {
                 AppearanceSettingsView(study: study, audio: audio, appearance: appearance, onReturn: onReturn)
             } else {
+            VStack(spacing: 0) {
+                lookupBar.padding(.horizontal, 28).padding(.top, 22).padding(.bottom, 8)
+                if !navigation.lookupQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    DictionaryResultsView(study: study, audio: audio, query: navigation.lookupQuery)
+                        .padding(.horizontal, 28).padding(.bottom, 24)
+                } else {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -48,6 +55,8 @@ struct LibraryView: View {
                 }
                 currentPreview
             }.padding(28).frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
             }
         }
         .frame(minWidth: 800, minHeight: 580)
@@ -57,6 +66,22 @@ struct LibraryView: View {
         .alert("无法打开词本", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) {
             Button("好") { error = nil }
         } message: { Text(error ?? "") }
+    }
+
+    private var lookupBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass").foregroundStyle(inkAccent)
+            TextField("查单词或中文释义 · 全部词库", text: $navigation.lookupQuery)
+                .textFieldStyle(.plain).focused($lookupFocused).accessibilityIdentifier("dictionary.search")
+            if !navigation.lookupQuery.isEmpty {
+                Button { navigation.lookupQuery = ""; audio.stop(); lookupFocused = true } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }.buttonStyle(.plain).help("清空查词，返回词本")
+            }
+            Text("⌘F").font(.system(size: 11)).foregroundStyle(.tertiary)
+        }
+        .padding(12).background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.primary.opacity(0.12)))
     }
 
     private var sidebar: some View {
@@ -69,6 +94,10 @@ struct LibraryView: View {
             categoryButton("考试词汇", icon: "graduationcap", value: .exam)
             categoryButton("专业领域", icon: "cube.transparent", value: .professional)
             Divider().padding(.vertical, 10)
+            Button { navigation.showsAppearance = false; lookupFocused = true } label: {
+                Label("查单词", systemImage: "magnifyingglass").font(.system(size: 13))
+                    .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 12).padding(.vertical, 11)
+            }.buttonStyle(.plain).keyboardShortcut("f", modifiers: .command)
             Button { navigation.showsAppearance = true } label: {
                 HStack(spacing: 10) { Image(systemName: "paintpalette").frame(width: 18); Text("卡片外观"); Spacer() }
                     .font(.system(size: 13, weight: navigation.showsAppearance ? .medium : .regular))
@@ -94,7 +123,7 @@ struct LibraryView: View {
     }
     private func categoryButton(_ title: String, icon: String, value: BookCategory?) -> some View {
         let selected = !navigation.showsAppearance && category == value
-        return Button { category = value; navigation.showsAppearance = false } label: {
+        return Button { category = value; navigation.showsAppearance = false; navigation.lookupQuery = ""; audio.stop() } label: {
             HStack(spacing: 10) { Image(systemName: icon).frame(width: 18); Text(title); Spacer() }
                 .font(.system(size: 13, weight: selected ? .medium : .regular))
                 .padding(.horizontal, 12).padding(.vertical, 11)
