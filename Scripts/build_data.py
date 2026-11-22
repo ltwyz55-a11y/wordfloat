@@ -38,6 +38,23 @@ def build():
         learning = json.loads((ROOT/'Data/learning-details.json').read_text())
         assert learning['formatVersion'] == 1
         assert set(learning['words']) == {r[0] for r in db.execute('SELECT id FROM words')}
+        imported = json.loads((ROOT/'Data/cambridge-listening.json').read_text())
+        rows = imported['rows']
+        assert len(rows) == imported['sourceRows'] == 949
+        assert len({r['word'].casefold() for r in rows}) == len(rows)
+        db.execute('INSERT INTO books VALUES (?,?,?,?,?,?,?)',
+            (imported['id'], imported['name'], 'exam', imported['subtitle'],
+             imported['sourceFile']+' · SHA-256 '+imported['sourceSHA256'], imported['version'], 9))
+        for position, row in enumerate(rows):
+            key = row['word'].casefold()
+            meaning = row['meaning'] or '原文件未提供释义'
+            db.execute('INSERT OR IGNORE INTO words VALUES (?,?,?,?,?,NULL)',
+                (key, row['word'], row['phonetic'], row['partOfSpeech'], meaning))
+            db.execute("UPDATE words SET phonetic=? WHERE id=? AND phonetic=''", (row['phonetic'], key))
+            db.execute('INSERT INTO entries VALUES (?,?,?,?)', (imported['id'], key, meaning, position))
+            if key not in learning['words']:
+                learning['words'][key] = dict(dictionaryMeaning=meaning,englishDefinition='',senses=[],etymologies=[],examples=[],forms=[])
+        counts[imported['id']] = len(rows)
         for word_id, detail in sorted(learning['words'].items()):
             assert set(detail) == {'dictionaryMeaning','englishDefinition','senses','etymologies','examples','forms'}
             assert len({e['id'] for e in detail['examples']}) == len(detail['examples'])

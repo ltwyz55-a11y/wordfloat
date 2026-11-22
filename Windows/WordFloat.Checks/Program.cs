@@ -22,7 +22,7 @@ internal static partial class Program
             Check("nine complete offline books and preserved domain meanings", () =>
             {
                 var books = store.Books();
-                Require(books.Count == 9 && books.Sum(b => b.Count) == 27642, "Book counts");
+                Require(books.Count == 10 && books.Sum(b => b.Count) == 28591, "Book counts");
                 foreach (var book in books)
                 {
                     var entries = store.Entries(book.Id);
@@ -74,7 +74,7 @@ internal static partial class Program
                 File.WriteAllText(first, "damaged");
                 Require(VocabularyStore.ExtractBundled(repair) == first, "Stable data path");
                 using var repaired = new VocabularyStore(first);
-                Require(repaired.Books().Count == 9, "Repair failed");
+                Require(repaired.Books().Count == 10, "Repair failed");
             });
             RunStudyChecks(store, temporary);
             RunAppearanceChecks(temporary);
