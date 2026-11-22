@@ -121,6 +121,23 @@ enum DesktopDiagnostics {
         try await checkLearning(windows: windows, engine: engine, folder: folder)
         try await checkAppearance(app: app, folder: folder)
         try await checkResizing(windows: windows, engine: engine, folder: folder)
+        if ProcessInfo.processInfo.arguments.contains("--store-screenshots") {
+            app.showLibrary()
+            main.setContentSize(NSSize(width: 1280, height: 800))
+            main.appearance = NSAppearance(named: .aqua)
+            app.libraryNavigation.showsAppearance = false
+            app.libraryNavigation.lookupQuery = "photograph"
+            await pause(0.6)
+            try capture(main, to: folder.appendingPathComponent("store-dictionary.png"))
+            app.libraryNavigation.lookupQuery = ""
+            app.libraryNavigation.showsAppearance = true
+            await pause(0.4)
+            try capture(main, to: folder.appendingPathComponent("store-appearance.png"))
+            main.appearance = NSAppearance(named: .darkAqua)
+            await pause()
+            try capture(main, to: folder.appendingPathComponent("store-appearance-dark.png"))
+            app.libraryNavigation.showsAppearance = false
+        }
         let report: [String:Any] = ["status":"passed", "books":study.books.count,
             "entries":study.books.reduce(0) { $0+$1.count },
             "checks":["global-dictionary-search-and-speech","lookup-preserves-study-position","native-window-visibility","nonactivating-panel","single-click","definition-click-collapse","repeated-expand-collapse","double-click-cancellation","mouse-swipe","return-to-card","close-quits-and-hides-all-windows","light-and-dark-previews","six-appearance-presets","live-card-recolor","managed-wallpaper-import","wallpaper-collapse","appearance-settings-light-dark-compact","scrollable-learning-details","inline-English-Chinese-pair-buttons","scroll-reset-on-word-change","example-speech-stops-on-word-change","collapse-after-scrolling","mouse-edge-resize-limits","resize-cancels-pending-click","independent-mode-dimensions"],
