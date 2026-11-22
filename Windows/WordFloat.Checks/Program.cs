@@ -19,7 +19,7 @@ internal static partial class Program
         {
             var path = VocabularyStore.ExtractBundled(temporary);
             using var store = new VocabularyStore(path);
-            Check("nine complete offline books and preserved domain meanings", () =>
+            Check("ten complete offline books and preserved domain meanings", () =>
             {
                 var books = store.Books();
                 Require(books.Count == 10 && books.Sum(b => b.Count) == 28591, "Book counts");
