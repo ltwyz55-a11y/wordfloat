@@ -31,6 +31,28 @@ internal static partial class Program
                 }
                 Require(store.Entries("automotive").Single(e => e.Id == "greenhouse").Meaning.Contains("车窗"), "Domain meaning lost");
             });
+            Check("all imported listening terms preserve source meaning order and readable details", () =>
+            {
+                using var source=JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"Data/cambridge-listening.json")));
+                var rows=source.RootElement.GetProperty("rows").EnumerateArray().ToArray();
+                var entries=store.Entries("cambridge-listening-4-19");
+                Require(entries.Count==949&&rows.Length==949,"Imported term count");
+                for(var index=0;index<rows.Length;index++)
+                {
+                    var row=rows[index];var entry=entries[index];
+                    Require(entry.Id==row.GetProperty("word").GetString()!.ToLowerInvariant() && entry.Position==index,"Imported word order");
+                    var meaning=row.GetProperty("meaning").GetString()!;
+                    Require(entry.Meaning==(meaning.Length==0?"原文件未提供释义":meaning),"Imported full meaning: "+entry.Id);
+                    Require(store.Details(entry.Id).DictionaryMeaning.Length>0,"Missing learning detail: "+entry.Id);
+                }
+                Require(entries[509].Id=="situational" && entries[509].Meaning=="原文件未提供释义","Missing meaning must remain explicit");
+                Require(entries[0].Id=="innovation" && entries[^1].Id=="accurate","Original PDF boundaries");
+                var settings=new SettingsStore(Path.Combine(temporary,"listening-settings.json"));
+                var study=new StudySession(store,settings);study.SelectBook("cambridge-listening-4-19");study.Jump("situational");
+                var restored=new StudySession(store,new SettingsStore(settings.Path));
+                Require(restored.SelectedBookId=="cambridge-listening-4-19" && restored.Current?.Id=="situational","Imported position restore");
+                restored.Jump("accurate");restored.Advance(1);Require(restored.Current?.Id=="innovation","Imported book wraps");
+            });
             Check("literal Chinese and English search and invalid book", () =>
             {
                 Require(store.Entries("automotive", "GREENHOUSE").Count == 1, "English case folding");
