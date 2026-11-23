@@ -24,6 +24,15 @@ internal static partial class Program
             Require(restored.Style.Tint == "#AABBCC" && restored.Style.Text == "#112233" && restored.Style.Opacity == 0.6, "Custom color restore");
             Require(!restored.Style.FollowsSystem && restored.Style.Preset is null, "Custom style");
         });
+        Check("translucent surface respects saved opacity without an opaque fallback", () =>
+        {
+            Require(new CardStyle().SurfaceOpacity()==0.18,"Default glass became solid");
+            Require(CardPreset.All.First(p=>p.Id=="frosted").Style.SurfaceOpacity()==0.32,"Frosted alpha");
+            Require(CardPreset.All.First(p=>p.Id=="clear").Style.SurfaceOpacity()==0.12,"Clear alpha");
+            Require(new CardStyle{Opacity=0.55}.SurfaceOpacity()==0.55,"Custom alpha ignored");
+            Require(new CardStyle{Mode="solid",Opacity=0.1}.SurfaceOpacity()==1,"Solid preset transparency");
+            Require(new CardStyle().SurfaceOpacity(true)==1,"Accessible solid fallback");
+        });
         Check("managed wallpaper restore and safe removal", () =>
         {
             var appearance = new AppearanceController(new SettingsStore(path), wallpapers);

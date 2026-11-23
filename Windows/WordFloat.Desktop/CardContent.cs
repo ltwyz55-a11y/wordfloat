@@ -88,7 +88,7 @@ internal static class CardContent
     {
         var style = appearance.Style.Resolved(NativeWindow.IsDark);
         var surface = new Border { Width=260,Height=revealed?220:150 };
-        UI.PaintSurface(surface,style,appearance.WallpaperPath,false);
+        UI.PaintSurface(surface,style,appearance.WallpaperPath);
         var grid = new Grid(); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(24) });
         grid.RowDefinitions.Add(new RowDefinition()); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(36) });
         var handle = new Border { Width=28,Height=3,CornerRadius=new CornerRadius(2),Background=UI.Brush(style.Text,0.25) }; grid.Children.Add(handle);

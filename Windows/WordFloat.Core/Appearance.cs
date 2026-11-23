@@ -21,6 +21,8 @@ public sealed record CardStyle
         Opacity = double.IsFinite(Opacity) ? Math.Clamp(Opacity, 0, 1) : 0.18,
         WallpaperFile = IsManagedFile(WallpaperFile) ? WallpaperFile : null
     };
+    public double SurfaceOpacity(bool forceOpaque = false) => forceOpaque || Mode is "solid" or "wallpaper"
+        ? 1 : Math.Clamp(double.IsFinite(Opacity) ? Opacity : 0.18, 0.04, 1);
     public CardStyle Resolved(bool dark) => !FollowsSystem ? this : this with
     {
         Tint = dark ? "#252B29" : "#EBF0ED", Text = dark ? "#F3F5F4" : "#212629"

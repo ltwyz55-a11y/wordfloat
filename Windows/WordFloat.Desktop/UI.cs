@@ -71,11 +71,15 @@ internal static class UI
         try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }); }
         catch (System.ComponentModel.Win32Exception e) { MessageBox.Show("无法打开浏览器："+e.Message,AppInfo.Name); }
     }
-    internal static void PaintSurface(Border surface, CardStyle style, string? wallpaper, bool nativeBackdrop)
+    internal static void PaintSurface(Border surface, CardStyle style, string? wallpaper)
     {
         surface.CornerRadius = new CornerRadius(18);
-        surface.BorderThickness = new Thickness(1);
-        surface.BorderBrush = Brush(style.Text,0.14);
+        surface.BorderThickness = new Thickness(0);
+        surface.BorderBrush = Brushes.Transparent;
+        surface.UseLayoutRounding = true;
+        surface.SizeChanged -= ClipSurface;
+        surface.SizeChanged += ClipSurface;
+        UpdateClip(surface);
         if (style.Mode == "wallpaper" && wallpaper is not null)
         {
             try
@@ -93,8 +97,15 @@ internal static class UI
         }
         else
         {
-            var opacity = style.Mode == "solid" ? 1 : nativeBackdrop ? Math.Max(0.08,style.Opacity) : style.Mode == "clear" ? Math.Max(0.22,style.Opacity) : Math.Max(0.9,style.Opacity);
+            var opacity = style.SurfaceOpacity(NativeWindow.SafeMode || SystemParameters.HighContrast);
             surface.Background = Brush(style.Tint,opacity);
         }
     }
+    private static void ClipSurface(object sender, SizeChangedEventArgs e) => UpdateClip((Border)sender);
+    private static void UpdateClip(Border surface)
+    {
+        var clip=new RectangleGeometry(new Rect(0,0,Math.Max(0,surface.ActualWidth),Math.Max(0,surface.ActualHeight)),18,18);
+        clip.Freeze();surface.Clip=clip;
+    }
+
 }

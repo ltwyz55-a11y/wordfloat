@@ -83,7 +83,7 @@ internal sealed class CardWindow : Window
     {
         var offset=preserveScroll?Scroller?.VerticalOffset??0:0;
         var style=appearance.Style.Resolved(NativeWindow.IsDark);
-        UI.PaintSurface(surface,style,appearance.WallpaperPath,!AllowsTransparency);
+        UI.PaintSurface(surface,style,appearance.WallpaperPath);
         var ink=UI.Brush(style.Text,0.78);
         grip.Background=UI.Brush(style.Text,0.25);
         previous.Foreground=ink;Speaker.Foreground=ink;next.Foreground=ink;
@@ -103,7 +103,6 @@ internal sealed class CardWindow : Window
         }
         if(ready) Dispatcher.BeginInvoke(()=>NativeWindow.Restore(this,study.Settings),DispatcherPriority.Loaded);
         if(offset>0) Dispatcher.BeginInvoke(()=>Scroller?.ScrollToVerticalOffset(offset),DispatcherPriority.Loaded);
-        NativeWindow.ApplyBackdrop(this);
         UpdateSpeechMessage();
     }
     private void UpdateSpeechMessage()=>Speaker.ToolTip=audio.Message??"播放发音";
