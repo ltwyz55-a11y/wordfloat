@@ -23,7 +23,7 @@ internal sealed class DictionaryPage : Grid
         RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});RowDefinitions.Add(new RowDefinition());
         ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(200)});ColumnDefinitions.Add(new ColumnDefinition());
         var title=UI.Text("词典查询",25,ink);title.Margin=new Thickness(0,0,0,8);SetColumnSpan(title,2);Children.Add(title);
-        count=UI.Text("全部内置词库 · 离线可用",11,muted);count.Margin=new Thickness(0,0,0,16);SetRow(count,1);SetColumnSpan(count,2);Children.Add(count);
+        count=UI.Text("",11,muted);count.Margin=new Thickness(0,0,0,16);SetRow(count,1);SetColumnSpan(count,2);Children.Add(count);
         results=new ListBox{Background=panel,Foreground=ink,BorderThickness=new Thickness(0),Margin=new Thickness(0,0,18,0),HorizontalContentAlignment=HorizontalAlignment.Stretch};
         VirtualizingPanel.SetIsVirtualizing(results,true);VirtualizingPanel.SetVirtualizationMode(results,VirtualizationMode.Recycling);
         var row=new FrameworkElementFactory(typeof(StackPanel));row.SetValue(MarginProperty,new Thickness(6,8,6,8));
@@ -39,9 +39,9 @@ internal sealed class DictionaryPage : Grid
         try
         {
             var matches=study.Store.Lookup(query);results.ItemsSource=matches;
-            count.Text=matches.Count==100?"全部词库 · 显示前 100 条，请输入更完整的单词缩小范围":$"全部内置词库 · {matches.Count} 个匹配词条 · 离线可用";
+            count.Text=matches.Count==100?"前 100 条结果":$"{matches.Count} 个词条";
             results.SelectedIndex=matches.Count>0?0:-1;
-            if(matches.Count==0)preview.Content=UI.Text("未在内置词库中找到匹配词条。\n\n试试其他拼写或中文关键词；当前查询仅覆盖随应用提供的词库。",14,muted);
+            if(matches.Count==0)preview.Content=UI.Text("未找到词条",14,muted);
         }
         catch(Exception error)when(error is InvalidOperationException or System.Text.Json.JsonException)
         {results.ItemsSource=null;preview.Content=UI.Text("无法查词："+error.Message,14,muted);}

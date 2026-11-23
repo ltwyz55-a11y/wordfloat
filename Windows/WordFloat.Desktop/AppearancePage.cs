@@ -44,16 +44,15 @@ internal sealed class AppearancePage : UserControl
             var button=UI.Button(preset.Title,()=>appearance.Apply(preset),Ink,"preset."+preset.Id);button.Margin=new Thickness(0,0,8,6);button.Background=UI.Brush(NativeWindow.IsDark?"#303F34":"#E7EDE4");presets.Children.Add(button);
         }
         settings.Children.Add(presets);settings.Children.Add(UI.Text("背景效果",12,Muted));
-        mode.ItemsSource=new[]{new ModeItem("frosted","磨砂玻璃"),new ModeItem("clear","清透玻璃"),new ModeItem("solid","纯色"),new ModeItem("wallpaper","图片壁纸")};
+        mode.ItemsSource=new[]{new ModeItem("frosted","雾面半透明"),new ModeItem("clear","清透半透明"),new ModeItem("solid","纯色"),new ModeItem("wallpaper","图片壁纸")};
         mode.SelectionChanged+=(_,_)=>{if(!updating && mode.SelectedItem is ModeItem item){appearance.Customize(mode:item.Id);if(appearance.Style.Mode!=item.Id)UpdatePreview();}};settings.Children.Add(mode);
         var colors=new Grid{Margin=new Thickness(0,0,0,18)};colors.ColumnDefinitions.Add(new ColumnDefinition());colors.ColumnDefinitions.Add(new ColumnDefinition());
-        var tintGroup=new StackPanel{Margin=new Thickness(0,0,10,0)};tintGroup.Children.Add(UI.Text("卡片颜色 / 图片蒙层",12,Muted));
+        var tintGroup=new StackPanel{Margin=new Thickness(0,0,10,0)};tintGroup.Children.Add(UI.Text("卡片颜色",12,Muted));
         tint=UI.Button("",()=>PickColor(false),Ink,"appearance.tint");tint.Margin=new Thickness(0,7,0,0);tintGroup.Children.Add(tint);colors.Children.Add(tintGroup);
         var textGroup=new StackPanel{Margin=new Thickness(10,0,0,0)};textGroup.Children.Add(UI.Text("字体颜色",12,Muted));text=UI.Button("",()=>PickColor(true),Ink,"appearance.text");text.Margin=new Thickness(0,7,0,0);textGroup.Children.Add(text);Grid.SetColumn(textGroup,1);colors.Children.Add(textGroup);settings.Children.Add(colors);
         opacityLabel.FontSize=12;opacityLabel.Foreground=Muted;settings.Children.Add(opacityLabel);
         opacity.ValueChanged+=(_,_)=>{if(!updating)appearance.Customize(opacity:opacity.Value);};settings.Children.Add(opacity);
         var actions=new WrapPanel();remove=UI.Button("移除图片",appearance.RemoveWallpaper,Ink,"appearance.remove");actions.Children.Add(remove);actions.Children.Add(UI.Button("恢复默认",()=>appearance.Apply(CardPreset.All[0]),Ink,"appearance.reset"));settings.Children.Add(actions);
-        var note=UI.Text("更改即时预览并自动保存。玻璃效果随 Windows 版本和系统透明度设置变化。图片仅保存在本机，移动原图不影响使用。",11,Muted);note.Margin=new Thickness(0,16,0,16);settings.Children.Add(note);
         root.Children.Add(new ScrollViewer{Content=settings,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});Content=root;
         Loaded+=(_,_)=>{appearance.Changed+=UpdatePreview;study.Changed+=UpdatePreview;UpdatePreview();};
         Unloaded+=(_,_)=>{appearance.Changed-=UpdatePreview;study.Changed-=UpdatePreview;};
@@ -67,7 +66,7 @@ internal sealed class AppearancePage : UserControl
             preview.Content=CardContent.Preview(study,audio,appearance,reveal.IsChecked==true);
             foreach(ModeItem item in mode.Items)if(item.Id==appearance.Style.Mode)mode.SelectedItem=item;
             opacity.Value=appearance.Style.Opacity;opacity.IsEnabled=appearance.Style.Mode!="solid";
-            opacityLabel.Text=$"染色浓度  {appearance.Style.Opacity:P0}";
+            opacityLabel.Text=appearance.Style.Mode=="wallpaper"?$"图片蒙层  {appearance.Style.Opacity:P0}":appearance.Style.Mode=="solid"?"背景不透明度  100%":$"背景不透明度  {appearance.Style.Opacity:P0}";
             Swatch(tint,appearance.Style.Tint);Swatch(text,appearance.Style.Text);
             remove.IsEnabled=appearance.WallpaperPath is not null;
         }

@@ -56,13 +56,12 @@ internal sealed class LibraryWindow : Window
         Background=UI.Brush(NativeWindow.IsDark?"#1C2420":"#F8FAF7");Foreground=Ink;
         var grid=new Grid();grid.ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(210)});grid.ColumnDefinitions.Add(new ColumnDefinition());
         var sidebar=new DockPanel{Margin=new Thickness(20,28,16,20)};
-        var brand=new StackPanel();brand.Children.Add(UI.Text("浮词",25,Ink));
-        var subtitle=UI.Text("让单词留在眼前",11,Muted);subtitle.Margin=new Thickness(0,6,0,26);brand.Children.Add(subtitle);
+        var brand=new StackPanel();var brandName=UI.Text("浮词",25,Ink);brandName.Margin=new Thickness(0,0,0,24);brand.Children.Add(brandName);
         foreach(var (title,id) in new[]{("全部词本","all"),("考试词汇","exam"),("专业领域","professional")})
         {
             var button=UI.Button(title,()=>{category=id;ShowBooks();},Ink);button.HorizontalContentAlignment=HorizontalAlignment.Left;button.Margin=new Thickness(0,2,0,2);brand.Children.Add(button);
         }
-        brand.Children.Add(UI.Button("查单词  ·  Ctrl+F",()=>{lookupInput.Focus();lookupInput.SelectAll();},Ink));
+        brand.Children.Add(UI.Button("查单词",()=>{lookupInput.Focus();lookupInput.SelectAll();},Ink));
         var appearanceButton=UI.Button("卡片外观",ShowAppearance,Ink);appearanceButton.Margin=new Thickness(0,20,0,0);brand.Children.Add(appearanceButton);
         DockPanel.SetDock(brand,Dock.Top);sidebar.Children.Add(brand);
         var bottom=new StackPanel();
@@ -70,17 +69,15 @@ internal sealed class LibraryWindow : Window
         bottom.Children.Add(UI.Text("发音口音",10,Muted));
         var accent=new ComboBox{ItemsSource=new[]{"美式英语","英式英语"},SelectedIndex=audio.Accent=="en-GB"?1:0,Margin=new Thickness(0,5,0,14),Padding=new Thickness(5),Foreground=UI.Brush("#253B31"),Background=Brushes.White};
         accent.SelectionChanged+=(_,_)=>audio.Accent=accent.SelectedIndex==1?"en-GB":"en-US";bottom.Children.Add(accent);
-        var start=UI.Button("悬浮学习  ↗",returnToCard,Brushes.White,"library.return");start.Background=UI.Brush("#346C53");start.Padding=new Thickness(12);bottom.Children.Add(start);
-        var hint=UI.Text("关闭窗口会退出浮词\nCtrl+1 词本 · Ctrl+2 卡片",10,Muted);hint.Margin=new Thickness(0,10,0,0);bottom.Children.Add(hint);
-        var about=UI.Button("关于、隐私与词库来源",()=>AboutWindow.Show(this),Muted,"library.about");about.FontSize=10;about.Margin=new Thickness(0,10,0,0);bottom.Children.Add(about);
+        var start=UI.Button("悬浮学习",returnToCard,Brushes.White,"library.return");start.Background=UI.Brush("#346C53");start.Padding=new Thickness(12);bottom.Children.Add(start);
+        var about=UI.Button("关于与隐私",()=>AboutWindow.Show(this),Muted,"library.about");about.FontSize=10;about.Margin=new Thickness(0,10,0,0);bottom.Children.Add(about);
         DockPanel.SetDock(bottom,Dock.Bottom);sidebar.Children.Add(bottom);sidebar.Children.Add(new Border());
         var sideBorder=new Border{Background=UI.Brush(NativeWindow.IsDark?"#242D27":"#EEF2EC"),Child=sidebar};grid.Children.Add(sideBorder);
         var content=new DockPanel{Margin=new Thickness(28,25,28,16)};
         status=UI.Text("",11,Muted);status.Margin=new Thickness(0,10,0,0);DockPanel.SetDock(status,Dock.Bottom);content.Children.Add(status);
         var lookupBar=new DockPanel{Margin=new Thickness(0,0,0,20)};
         var clear=UI.Button("清空",()=>{lookupInput.Clear();lookupInput.Focus();},Muted,"dictionary.clear");DockPanel.SetDock(clear,Dock.Right);lookupBar.Children.Add(clear);
-        var label=UI.Text("查单词",13,Ink);label.VerticalAlignment=VerticalAlignment.Center;label.Margin=new Thickness(0,0,10,0);DockPanel.SetDock(label,Dock.Left);lookupBar.Children.Add(label);
-        lookupInput=SearchBox(lookupQuery,"查单词或中文释义 · 全部词库",q=>
+        lookupInput=SearchBox(lookupQuery,"查单词或中文释义",q=>
         {
             lookupQuery=q;audio.Stop();searchTimer.Stop();
             if(!HasLookup)ShowPage();
@@ -89,19 +86,25 @@ internal sealed class LibraryWindow : Window
         lookupInput.Margin=new Thickness(0);lookupInput.Tag="dictionary.search";
         lookupInput.KeyDown+=(_,e)=>{if(e.Key==Key.Enter){searchTimer.Stop();if(HasLookup)ShowLookup();e.Handled=true;}};
         var inputHost=new Grid();inputHost.Children.Add(lookupInput);
-        var placeholder=UI.Text("输入英文或中文释义 · 全部词库",12,Muted);placeholder.Margin=new Thickness(11,0,0,0);placeholder.VerticalAlignment=VerticalAlignment.Center;placeholder.IsHitTestVisible=false;
+        var placeholder=UI.Text("查单词或中文释义",12,Muted);placeholder.Margin=new Thickness(11,0,0,0);placeholder.VerticalAlignment=VerticalAlignment.Center;placeholder.IsHitTestVisible=false;
         placeholder.Visibility=lookupQuery.Length==0?Visibility.Visible:Visibility.Collapsed;inputHost.Children.Add(placeholder);
         lookupInput.TextChanged+=(_,_)=>placeholder.Visibility=lookupInput.Text.Length==0?Visibility.Visible:Visibility.Collapsed;
+        clear.Visibility=lookupQuery.Length==0?Visibility.Collapsed:Visibility.Visible;
+        lookupInput.TextChanged+=(_,_)=>clear.Visibility=lookupInput.Text.Length==0?Visibility.Collapsed:Visibility.Visible;
         lookupBar.Children.Add(inputHost);DockPanel.SetDock(lookupBar,Dock.Top);content.Children.Add(lookupBar);
         center=new ContentControl{HorizontalContentAlignment=HorizontalAlignment.Stretch,VerticalContentAlignment=VerticalAlignment.Stretch};content.Children.Add(center);Grid.SetColumn(content,1);grid.Children.Add(content);
         Content=grid;ShowPage();StudyChanged();ShowStatus();
     }
     private void StudyChanged()
     {
-        progress.Text=study.CurrentBook is { } book?$"{book.Name} · {study.Index+1:N0} / {book.Count:N0}\n{study.Current?.Spelling}":"选择一个词本";
+        progress.Text=study.CurrentBook is { } book?$"{book.Name} · {study.Index+1:N0} / {book.Count:N0}":"选择一个词本";
         if(ready && page=="books" && !HasLookup)RefreshBooks();
     }
-    private void ShowStatus()=>status.Text=audio.Message??study.Settings.LastError??"离线词库 · 学习进度自动保存在本机";
+    private void ShowStatus()
+    {
+        status.Text=audio.Message??study.Settings.LastError??"";
+        status.Visibility=status.Text.Length==0?Visibility.Collapsed:Visibility.Visible;
+    }
     internal void ShowBooks(){page="books";lookupInput.Clear();ShowPage();}
     internal void ShowAppearance(){page="appearance";lookupInput.Clear();ShowPage();}
     private void ShowPage()
@@ -132,10 +135,9 @@ internal sealed class LibraryWindow : Window
     {
         var dock=new DockPanel();
         var heading=UI.Text(category=="exam"?"考试词汇":category=="professional"?"专业领域":"单词本",25,Ink);heading.Margin=new Thickness(0,0,0,6);DockPanel.SetDock(heading,Dock.Top);dock.Children.Add(heading);
-        var subtitle=UI.Text("选择一个词本，开始悬浮学习",12,Muted);subtitle.Margin=new Thickness(0,0,0,20);DockPanel.SetDock(subtitle,Dock.Top);dock.Children.Add(subtitle);
         var search=SearchBox(bookQuery,"搜索词本名称或领域",q=>{bookQuery=q;searchTimer.Stop();searchTimer.Start();});DockPanel.SetDock(search,Dock.Top);dock.Children.Add(search);
         var footer=new StackPanel{Margin=new Thickness(0,12,0,0)};
-        var browse=UI.Button("浏览当前词本的词条 →",()=>{page="words";wordQuery="";ShowPage();},Ink,"library.browse");browse.HorizontalAlignment=HorizontalAlignment.Left;footer.Children.Add(browse);
+        var browse=UI.Button("浏览词条",()=>{page="words";wordQuery="";ShowPage();},Ink,"library.browse");browse.HorizontalAlignment=HorizontalAlignment.Left;footer.Children.Add(browse);
         DockPanel.SetDock(footer,Dock.Bottom);dock.Children.Add(footer);
         bookCards=new WrapPanel();emptyBooks=UI.Text("没有找到词本",14,Muted);
         var cards=new StackPanel();cards.Children.Add(emptyBooks);cards.Children.Add(bookCards);
@@ -151,8 +153,7 @@ internal sealed class LibraryWindow : Window
         {
             var button=UI.Button("",()=>study.SelectBook(book.Id),Ink,"book."+book.Id);button.Padding=new Thickness(0);button.Margin=new Thickness(0,0,12,12);button.Width=260;
             var lines=new StackPanel{Margin=new Thickness(17,13,17,13)};var title=UI.Text(book.Name,18,Ink);title.FontWeight=FontWeights.Medium;lines.Children.Add(title);
-            var subtitle=UI.Text(book.Subtitle,11,Muted);subtitle.Margin=new Thickness(0,5,0,9);lines.Children.Add(subtitle);
-            lines.Children.Add(UI.Text($"{book.Count:N0} 个词",11,Muted));
+            var count=UI.Text($"{book.Count:N0} 词",11,Muted);count.Margin=new Thickness(0,8,0,0);lines.Children.Add(count);
             button.Content=new Border{Background=Panel,BorderBrush=UI.Brush(study.SelectedBookId==book.Id?"#659F79":NativeWindow.IsDark?"#38463C":"#E0E6DE"),BorderThickness=new Thickness(study.SelectedBookId==book.Id?2:1),CornerRadius=new CornerRadius(12),Child=lines};
             bookCards.Children.Add(button);
         }
@@ -194,7 +195,6 @@ internal sealed class LibraryWindow : Window
         var details=study.Store.Details(entry.Id);
         if(details.DictionaryMeaning.Length>0 && details.DictionaryMeaning!=entry.Meaning)
         {var general=UI.Text("词典释义\n"+details.DictionaryMeaning,12,Muted);general.Margin=new Thickness(0,18,0,0);content.Children.Add(general);}
-        var hint=UI.Text("词根、词形和双语例句可在卡片展开后向下滚动查看。",11,Muted);hint.Margin=new Thickness(0,20,0,0);content.Children.Add(hint);
         dock.Children.Add(new ScrollViewer{Content=content,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});wordPreview.Content=dock;
     }
 }
