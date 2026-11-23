@@ -1,6 +1,6 @@
 # 浮词
 
-源码与发行包：[GitHub 仓库](https://github.com/ltwyz55-a11y/wordfloat)、[最新下载](https://github.com/ltwyz55-a11y/wordfloat/releases/latest)。当前仓库为私有，需要登录获授权的 GitHub 账号。
+源码与发行包：[GitHub 仓库](https://github.com/ltwyz55-a11y/wordfloat)、[最新下载](https://github.com/ltwyz55-a11y/wordfloat/releases/latest)。仓库公开，源码与发行包可直接访问。
 
 一款在 Mac 桌面上方陪你记单词的小卡片。支持 macOS 13 及以上。本次构建为 Intel（x86_64）版本，与当前电脑匹配；其他架构可从源码重新构建。
 
@@ -110,3 +110,7 @@ outputs/浮词.app/Contents/MacOS/WordFloat --diagnostics "$PWD/work/previews"
 新增独立考试词本，来源为用户提供的《剑雅4-19听力答案词.pdf》（文件署名：花生酱罐罐），共 33 页、949 个不重复词条。保留原表顺序和原释义，949 条已逐一核对；原表第 510 条 situational 未给出释义，显示“原文件未提供释义”。原有词典释义与记忆资料不被覆盖；新词缺少的例句和词源不补造。
 
 提取数据与文件 SHA-256 见 `Data/cambridge-listening.json`，导入脚本见 `Scripts/import_cambridge_listening.py`。该材料为用户本地导入，权利归原作者，未将其标为 ECDICT 或 MIT 授权数据。应用中的发音使用本机系统语音。
+
+## 开源许可
+
+原创源码采用 [MIT 许可证](LICENSE)。第三方词库、例句、运行库和用户导入资料保留各自的许可与署名，不被本项目统一重新授权；具体范围见 [许可证说明](LICENSE-NOTICE.md) 与 [资料来源](DATA-NOTICE.md)。
