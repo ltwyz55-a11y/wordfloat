@@ -236,9 +236,10 @@ internal sealed class LibraryWindow : Window
         var grid=new Grid{Tag="words"};grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});grid.RowDefinitions.Add(new RowDefinition());
         grid.ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(200)});grid.ColumnDefinitions.Add(new ColumnDefinition());
         var top=new DockPanel{Margin=new Thickness(0,0,0,16)};
-        var back=UI.Button("← 词本",()=>{page="books";ShowPage();},Muted);DockPanel.SetDock(back,Dock.Right);top.Children.Add(back);top.Children.Add(UI.Text(study.CurrentBook?.Name??"词条",24,Ink));Grid.SetColumnSpan(top,2);grid.Children.Add(top);
+        var back=UI.Button("← 返回词本",ShowBooks,Muted,"library.back");back.HorizontalAlignment=HorizontalAlignment.Left;top.Children.Add(back);Grid.SetColumnSpan(top,2);grid.Children.Add(top);
         var search=SearchBox(wordQuery,"搜索英文或中文释义",q=>{wordQuery=q;searchTimer.Stop();searchTimer.Start();});var searchField=LibraryTheme.SearchField(search,"搜索英文或中文释义");Grid.SetRow(searchField,1);Grid.SetColumnSpan(searchField,2);grid.Children.Add(searchField);
         words=new ListBox{DisplayMemberPath="Spelling",Background=Panel,Foreground=Ink,BorderThickness=new Thickness(0),Margin=new Thickness(0,0,18,0)};
+        LibraryTheme.StyleList(words);
         VirtualizingPanel.SetIsVirtualizing(words,true);VirtualizingPanel.SetVirtualizationMode(words,VirtualizationMode.Recycling);
         words.SelectionChanged+=(_,_)=>PreviewWord(words.SelectedItem as BookEntry);Grid.SetRow(words,2);grid.Children.Add(words);
         wordPreview=new ContentControl{HorizontalContentAlignment=HorizontalAlignment.Stretch,VerticalContentAlignment=VerticalAlignment.Stretch};Grid.SetRow(wordPreview,2);Grid.SetColumn(wordPreview,1);grid.Children.Add(wordPreview);
@@ -253,16 +254,15 @@ internal sealed class LibraryWindow : Window
     }
     private void PreviewWord(BookEntry? entry)
     {
-        if(wordPreview is null || entry is null)return;
+        audio.Stop();
+        if(wordPreview is null)return;
+        wordPreview.Content=null;if(entry is null)return;
         var dock=new DockPanel();
-        var start=UI.Button("从这个词继续 →",()=>{study.Jump(entry.Id);returnToCard();},Brushes.White,"word.start");start.Background=UI.Brush("#346C53");start.Margin=new Thickness(0,14,0,0);DockPanel.SetDock(start,Dock.Bottom);dock.Children.Add(start);
-        var content=new StackPanel();content.Children.Add(UI.Text(entry.Spelling,27,Ink));
-        var phonetic=UI.Text(string.Join("   ",new[]{entry.PartOfSpeech,entry.Phonetic}.Where(s=>s.Length>0)),12,Muted);phonetic.Margin=new Thickness(0,10,0,12);content.Children.Add(phonetic);
-        content.Children.Add(UI.SpeechButton("听发音",()=>audio.Speak(entry.Spelling),Ink,"word.speak"));
-        var meaning=UI.Text(entry.Meaning,14,Ink);meaning.Margin=new Thickness(0,18,0,0);content.Children.Add(meaning);
-        var details=study.Store.Details(entry.Id);
-        if(details.DictionaryMeaning.Length>0 && details.DictionaryMeaning!=entry.Meaning)
-        {var general=UI.Text("词典释义\n"+details.DictionaryMeaning,12,Muted);general.Margin=new Thickness(0,18,0,0);content.Children.Add(general);}
-        dock.Children.Add(new ScrollViewer{Content=content,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});wordPreview.Content=dock;
+        var start=LibraryTheme.PrimaryButton("从这个词开始",()=>{study.Jump(entry.Id);returnToCard();},"word.start");
+        start.HorizontalAlignment=HorizontalAlignment.Left;start.Margin=new Thickness(0,14,0,0);DockPanel.SetDock(start,Dock.Bottom);dock.Children.Add(start);
+        try{dock.Children.Add(WordDetailsView.ForEntry(study,audio,entry));}
+        catch(Exception error)when(error is InvalidOperationException or System.Text.Json.JsonException)
+        {dock.Children.Add(UI.Text("无法读取释义："+error.Message,13,Muted));}
+        wordPreview.Content=dock;
     }
 }

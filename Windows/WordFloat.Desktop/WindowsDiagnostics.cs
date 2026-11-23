@@ -117,6 +117,15 @@ internal static class WindowsDiagnostics
                     var lookupCurrent=study.Current;var lookupSpeech=engine.Spoken.Count;
                     controller.Library.SearchDictionary("  PHOTOGRAPH  ");await Pause();
                     Require(controller.Library.DictionarySelection=="photograph"&&engine.Spoken.Count==lookupSpeech,"Exact dictionary lookup stays silent");
+                    var sections=Descendants(controller.Library).OfType<Expander>().ToArray();
+                    Require(sections.Length>0&&sections.All(e=>!e.IsExpanded),"Additional learning details start collapsed");
+                    var exampleSection=sections.Single(e=>e.Tag as string=="details.examples");exampleSection.IsExpanded=true;await Pause();
+                    Require(engine.Spoken.Count==lookupSpeech,"Opening details remains silent");
+                    var dictionaryExample=Descendants(exampleSection).OfType<Button>().First(b=>(b.Tag as string)?.StartsWith("example.pair.",StringComparison.Ordinal)==true);
+                    dictionaryExample.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    var expectedExample=study.Store.Details("photograph").Examples[0];
+                    Require(engine.Spoken.Skip(lookupSpeech).Select(p=>p.Text).SequenceEqual(new[]{expectedExample.English,expectedExample.Chinese})&&study.Current==lookupCurrent,"Dictionary example plays both languages without changing study position");
+                    exampleSection.IsExpanded=false;checks.Add("collapsed-learning-details-and-manual-bilingual-playback");
                     var dictionarySpeaker=Descendants(controller.Library).OfType<Button>().First(b=>b.Tag as string=="dictionary.speak");dictionarySpeaker.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     Require(engine.Spoken.Last().Text=="photograph"&&study.Current==lookupCurrent,"Dictionary speech and preserved study position");Capture(controller.Library,Path.Combine(folder,"dictionary-dark.png"));
                     NativeWindow.DiagnosticDarkMode=false;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"dictionary-light.png"));

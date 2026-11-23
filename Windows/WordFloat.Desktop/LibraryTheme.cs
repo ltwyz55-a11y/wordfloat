@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace WordFloat.Desktop;
@@ -56,5 +57,25 @@ internal static class LibraryTheme
         input.GotKeyboardFocus += (_, _) => border.BorderBrush = Accent;
         input.LostKeyboardFocus += (_, _) => border.BorderBrush = Line;
         return border;
+    }
+
+    internal static void StyleList(ListBox list)
+    {
+        var item = new Style(typeof(ListBoxItem));
+        item.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(10, 12, 10, 12)));
+        item.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(0, 0, 0, 6)));
+        item.Setters.Add(new Setter(Control.BackgroundProperty, Brushes.Transparent));
+        item.Setters.Add(new Setter(Control.ForegroundProperty, Ink));
+        item.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Stretch));
+        var border = new FrameworkElementFactory(typeof(Border));
+        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
+        border.SetBinding(Border.BackgroundProperty, new Binding("Background") { RelativeSource = RelativeSource.TemplatedParent });
+        border.SetBinding(Border.PaddingProperty, new Binding("Padding") { RelativeSource = RelativeSource.TemplatedParent });
+        var presenter = new FrameworkElementFactory(typeof(ContentPresenter)); border.AppendChild(presenter);
+        item.Setters.Add(new Setter(Control.TemplateProperty, new ControlTemplate(typeof(ListBoxItem)) { VisualTree = border }));
+        item.Triggers.Add(new Trigger { Property = UIElement.IsMouseOverProperty, Value = true, Setters = { new Setter(Control.BackgroundProperty, Surface) } });
+        item.Triggers.Add(new Trigger { Property = ListBoxItem.IsSelectedProperty, Value = true,
+            Setters = { new Setter(Control.BackgroundProperty, Selection), new Setter(Control.ForegroundProperty, Accent) } });
+        list.ItemContainerStyle = item;
     }
 }
