@@ -72,7 +72,7 @@ internal sealed class LibraryWindow : Window
         accent.SelectionChanged+=(_,_)=>audio.Accent=accent.SelectedIndex==1?"en-GB":"en-US";bottom.Children.Add(accent);
         var start=UI.Button("悬浮学习  ↗",returnToCard,Brushes.White,"library.return");start.Background=UI.Brush("#346C53");start.Padding=new Thickness(12);bottom.Children.Add(start);
         var hint=UI.Text("关闭窗口会退出浮词\nCtrl+1 词本 · Ctrl+2 卡片",10,Muted);hint.Margin=new Thickness(0,10,0,0);bottom.Children.Add(hint);
-        var about=UI.Button("关于与词库来源",()=>AboutWindow.Show(this),Muted);about.FontSize=10;about.Margin=new Thickness(0,10,0,0);bottom.Children.Add(about);
+        var about=UI.Button("关于、隐私与词库来源",()=>AboutWindow.Show(this),Muted,"library.about");about.FontSize=10;about.Margin=new Thickness(0,10,0,0);bottom.Children.Add(about);
         DockPanel.SetDock(bottom,Dock.Bottom);sidebar.Children.Add(bottom);sidebar.Children.Add(new Border());
         var sideBorder=new Border{Background=UI.Brush(NativeWindow.IsDark?"#242D27":"#EEF2EC"),Child=sidebar};grid.Children.Add(sideBorder);
         var content=new DockPanel{Margin=new Thickness(28,25,28,16)};

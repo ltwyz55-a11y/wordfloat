@@ -51,6 +51,7 @@ internal sealed class AppController : IDisposable
         var menu=new Forms.ContextMenuStrip();
         var toggle=menu.Items.Add("显示单词卡片",null,(_,_)=>OnUi(()=>{if(Card.IsVisible)Card.Conceal();else ShowCard();}));
         menu.Items.Add("打开单词本",null,(_,_)=>OnUi(ShowLibrary));
+        menu.Items.Add("隐私与词库来源",null,(_,_)=>OnUi(()=>{ShowLibrary();AboutWindow.Show(Library);}));
         menu.Items.Add(new Forms.ToolStripSeparator());
         var us=(Forms.ToolStripMenuItem)menu.Items.Add("美式英语",null,(_,_)=>OnUi(()=>{Audio.Accent="en-US";Library.RefreshTheme();}));
         var gb=(Forms.ToolStripMenuItem)menu.Items.Add("英式英语",null,(_,_)=>OnUi(()=>{Audio.Accent="en-GB";Library.RefreshTheme();}));

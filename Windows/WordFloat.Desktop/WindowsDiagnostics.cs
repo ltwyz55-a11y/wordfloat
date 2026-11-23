@@ -86,6 +86,10 @@ internal static class WindowsDiagnostics
                     Require(controller.Library.MatchingBooks("设计","professional").Count==2,"Chinese book filter");
                     Require(controller.Library.MatchingBooks("ielts").Single().Id=="ielts","English book filter");checks.Add("library-selection-and-book-search");
                     controller.Library.ShowBooks();Capture(controller.Library,Path.Combine(folder,"library-light.png"));
+                    var information=AboutWindow.Create(controller.Library);information.Show();await Pause();
+                    var notice=((TextBox)information.Content).Text;
+                    Require(notice.Contains("隐私说明")&&notice.Contains("不主动收集或上传")&&notice.Contains("花生酱罐罐"),"Privacy and imported-source information");
+                    Capture(information,Path.Combine(folder,"privacy-and-sources.png"));information.Close();checks.Add("privacy-and-source-information");
                     NativeWindow.DiagnosticDarkMode=true;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"library-dark.png"));
                     var lookupCurrent=study.Current;var lookupSpeech=engine.Spoken.Count;
                     controller.Library.SearchDictionary("  PHOTOGRAPH  ");await Pause();
