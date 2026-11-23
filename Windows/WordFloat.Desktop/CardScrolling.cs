@@ -20,6 +20,11 @@ internal static class CardScrolling
             PanningMode=PanningMode.VerticalOnly,CanContentScroll=false
         };
         var track=new FrameworkElementFactory(typeof(CardScrollTrack),"PART_Track");
+        Binding Parent(string name,BindingMode mode=BindingMode.OneWay)=>new(name){RelativeSource=RelativeSource.TemplatedParent,Mode=mode,UpdateSourceTrigger=UpdateSourceTrigger.PropertyChanged};
+        track.SetBinding(Track.MinimumProperty,Parent("Minimum"));
+        track.SetBinding(Track.MaximumProperty,Parent("Maximum"));
+        track.SetBinding(Track.ViewportSizeProperty,Parent("ViewportSize"));
+        track.SetBinding(Track.ValueProperty,Parent("Value",BindingMode.TwoWay));
         var template=new ControlTemplate(typeof(ScrollBar)){VisualTree=track};
         var bar=new Style(typeof(ScrollBar));
         bar.Setters.Add(new Setter(FrameworkElement.OverridesDefaultStyleProperty,true));
@@ -31,7 +36,23 @@ internal static class CardScrolling
         bar.Setters.Add(new Setter(FrameworkElement.MarginProperty,new Thickness(0,3,6,3)));
         bar.Setters.Add(new Setter(UIElement.FocusableProperty,false));
         bar.Setters.Add(new Setter(Control.TemplateProperty,template));
-        viewer.Resources[typeof(ScrollBar)]=bar;
+        // Own both template levels: ScrollViewer offset -> ScrollBar value -> Track value.
+        // This avoids theme templates overriding or omitting the custom track's bindings.
+        var layout=new FrameworkElementFactory(typeof(CardScrollLayout));
+        var presenter=new FrameworkElementFactory(typeof(ScrollContentPresenter),"PART_ScrollContentPresenter");
+        presenter.SetBinding(ContentPresenter.ContentProperty,Parent("Content"));
+        presenter.SetValue(ScrollContentPresenter.CanContentScrollProperty,false);
+        layout.AppendChild(presenter);
+        var vertical=new FrameworkElementFactory(typeof(ScrollBar),"PART_VerticalScrollBar");
+        vertical.SetValue(Grid.ColumnProperty,1);vertical.SetValue(ScrollBar.OrientationProperty,Orientation.Vertical);
+        vertical.SetValue(FrameworkElement.StyleProperty,bar);
+        vertical.SetBinding(RangeBase.MaximumProperty,Parent("ScrollableHeight"));
+        vertical.SetBinding(ScrollBar.ViewportSizeProperty,Parent("ViewportHeight"));
+        vertical.SetBinding(RangeBase.ValueProperty,Parent("VerticalOffset"));
+        vertical.SetBinding(UIElement.VisibilityProperty,Parent("ComputedVerticalScrollBarVisibility"));
+        layout.AppendChild(vertical);
+        viewer.Template=new ControlTemplate(typeof(ScrollViewer)){VisualTree=layout};
+        ScrollViewer.SetIsDeferredScrollingEnabled(viewer,false);
         return viewer;
     }
     private static Brush ThumbBrush(CardStyle style)
@@ -51,13 +72,10 @@ internal sealed class CardScrollTrack : Track
     public CardScrollTrack()
     {
         Orientation=Orientation.Vertical;IsDirectionReversed=true;
-        Bind(MinimumProperty,"Minimum");Bind(MaximumProperty,"Maximum");Bind(ViewportSizeProperty,"ViewportSize");
-        SetBinding(ValueProperty,new Binding("Value"){RelativeSource=RelativeSource.TemplatedParent,Mode=BindingMode.TwoWay});
         Thumb=new Thumb{Focusable=false,IsTabStop=false,MinHeight=24,Cursor=Cursors.Arrow,OverridesDefaultStyle=true,Template=ThumbTemplate()};
         Thumb.SetBinding(Control.ForegroundProperty,new Binding("Foreground"){RelativeSource=new RelativeSource(RelativeSourceMode.FindAncestor,typeof(ScrollBar),1)});
         DecreaseRepeatButton=PageButton(ScrollBar.PageUpCommand);IncreaseRepeatButton=PageButton(ScrollBar.PageDownCommand);
     }
-    private void Bind(DependencyProperty property,string path)=>SetBinding(property,new Binding(path){RelativeSource=RelativeSource.TemplatedParent});
     private static RepeatButton PageButton(RoutedCommand command)
     {
         var hit=new FrameworkElementFactory(typeof(Border));hit.SetValue(Border.BackgroundProperty,Brushes.Transparent);
@@ -74,5 +92,15 @@ internal sealed class CardScrollTrack : Track
         template.Triggers.Add(new Trigger{Property=UIElement.IsMouseOverProperty,Value=true,Setters={new Setter(UIElement.OpacityProperty,0.9,"Pill")}});
         template.Triggers.Add(new Trigger{Property=Thumb.IsDraggingProperty,Value=true,Setters={new Setter(UIElement.OpacityProperty,1.0,"Pill")}});
         return template;
+    }
+}
+
+internal sealed class CardScrollLayout : Grid
+{
+    public CardScrollLayout()
+    {
+        Background=Brushes.Transparent;
+        ColumnDefinitions.Add(new ColumnDefinition());
+        ColumnDefinitions.Add(new ColumnDefinition{Width=GridLength.Auto});
     }
 }
