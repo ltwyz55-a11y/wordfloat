@@ -14,10 +14,15 @@ namespace WordFloat.Desktop;
 internal static class UI
 {
     internal static readonly FontFamily Font = new("Microsoft YaHei");
-    internal static void ConfigureTypography()
+    internal static void ConfigureTypography(Application app)
     {
-        Control.FontFamilyProperty.OverrideMetadata(typeof(Control), new FrameworkPropertyMetadata(Font));
-        TextBlock.FontFamilyProperty.OverrideMetadata(typeof(TextBlock), new FrameworkPropertyMetadata(Font));
+        // Apply instance styles: WPF has already registered font metadata on its built-in types.
+        foreach(var type in new[]{typeof(TextBlock),typeof(TextBox),typeof(Button),typeof(CheckBox),typeof(ComboBox),typeof(ListBox),typeof(Expander),typeof(ToolTip)})
+        {
+            var style=new Style(type);
+            style.Setters.Add(new Setter(TextBlock.FontFamilyProperty,Font));
+            app.Resources[type]=style;
+        }
     }
     internal static SolidColorBrush Brush(string hex, double opacity = 1)
     {
@@ -34,7 +39,7 @@ internal static class UI
     {
         var button = new Button { Content = title, Foreground = color ?? Brush("#253B31"), Background = Brushes.Transparent,
             BorderThickness = new Thickness(0), Padding = new Thickness(8,5,8,5), FontSize = 12, Cursor = Cursors.Hand,
-            Tag = id, ToolTip = title, HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
+            FontFamily = Font, Tag = id, ToolTip = title, HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
         var border = new FrameworkElementFactory(typeof(Border));
         border.SetValue(Border.CornerRadiusProperty,new CornerRadius(6));
         border.SetBinding(Border.BackgroundProperty,new Binding("Background") { RelativeSource = RelativeSource.TemplatedParent });

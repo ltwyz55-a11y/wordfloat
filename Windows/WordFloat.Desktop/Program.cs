@@ -31,7 +31,6 @@ internal static class Program
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static int RunDesktop(string[] args)
     {
-            UI.ConfigureTypography();
             StartupLog.Write("Loading desktop assemblies");
             NativeWindow.SafeMode=Array.IndexOf(args,"--safe-mode")>=0;
             if(NativeWindow.SafeMode)RenderOptions.ProcessRenderMode=RenderMode.SoftwareOnly;
@@ -45,7 +44,7 @@ internal static class Program
                 if(!SingleInstance.Send("open"))MessageBox.Show("浮词已经运行，可从系统托盘打开。",AppInfo.Name);
                 return 0;
             }
-            var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
+            var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};UI.ConfigureTypography(app);
             using var controller=new AppController(app,DataDirectory);
             instance.Listen(command=>controller.OnUi(command=="quit"?controller.Quit:controller.ShowLibrary));
             app.DispatcherUnhandledException+=(_,e)=>

@@ -34,6 +34,7 @@ internal sealed class CardWindow : Window
         var size=study.Settings.Value.CardSize.Size(study.Revealed);
         Title=AppInfo.Name; Width=size.Width; Height=size.Height;
         MinWidth=CardSizing.MinimumWidth;MaxWidth=CardSizing.MaximumWidth;MinHeight=CardSizing.MinimumHeight(study.Revealed);MaxHeight=CardSizing.MaximumHeight;
+        FontFamily=UI.Font;
         NativeWindow.PrepareCard(this);
         var grid = new Grid(); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(24) });
         grid.RowDefinitions.Add(new RowDefinition()); grid.RowDefinitions.Add(new RowDefinition { Height=new GridLength(36) });

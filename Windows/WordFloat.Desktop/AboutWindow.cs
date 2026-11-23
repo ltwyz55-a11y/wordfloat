@@ -25,6 +25,6 @@ internal static class AboutWindow
             content.AppendLine(reader.ReadToEnd()).AppendLine().AppendLine();
         }
         var text=new TextBox{Text=content.ToString(),IsReadOnly=true,TextWrapping=TextWrapping.Wrap,AcceptsReturn=true,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,Padding=new Thickness(20),Background=LibraryTheme.Canvas,Foreground=LibraryTheme.Ink,BorderThickness=new Thickness(0),FontSize=12};
-        return new Window{Owner=owner,Title="关于、隐私与词库来源",Width=650,Height=650,MinWidth=450,MinHeight=400,WindowStartupLocation=WindowStartupLocation.CenterOwner,Content=text,Icon=owner.Icon};
+        return new Window{FontFamily=UI.Font,Owner=owner,Title="关于、隐私与词库来源",Width=650,Height=650,MinWidth=450,MinHeight=400,WindowStartupLocation=WindowStartupLocation.CenterOwner,Content=text,Icon=owner.Icon};
     }
 }

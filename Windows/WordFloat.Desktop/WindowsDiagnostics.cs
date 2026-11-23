@@ -51,7 +51,7 @@ internal static class WindowsDiagnostics
         },JsonDefaults.Options));
         try
         {
-            var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};var engine=new Engine();
+            var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};UI.ConfigureTypography(app);var engine=new Engine();
             using var controller=new AppController(app,Path.Combine(folder,"temporary-settings"),engine);
             var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(45)};
             timeout.Tick+=(_,_)=>{timeout.Stop();failure=new TimeoutException("Windows diagnostics did not finish");controller.Quit();};
