@@ -34,4 +34,27 @@ internal static class LibraryTheme
         button.MinHeight = 42;
         return button;
     }
+
+    internal static Border SearchField(TextBox input, string hint)
+    {
+        input.Margin = new Thickness(0); input.Padding = new Thickness(0);
+        input.BorderThickness = new Thickness(0); input.Background = Brushes.Transparent;
+        input.FontSize = 14; input.MinHeight = 22; input.VerticalContentAlignment = VerticalAlignment.Center;
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        var icon = LibraryIcons.Create("search", Muted, 18); icon.HorizontalAlignment = HorizontalAlignment.Left;
+        grid.Children.Add(icon); Grid.SetColumn(input, 1); grid.Children.Add(input);
+        var placeholder = UI.Text(hint, 14, Muted);
+        placeholder.IsHitTestVisible = false; placeholder.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(placeholder, 1); grid.Children.Add(placeholder);
+        void RefreshHint() => placeholder.Visibility = input.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        input.TextChanged += (_, _) => RefreshHint(); RefreshHint();
+        var border = new Border { Background = Surface, BorderBrush = Line, BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 9, 12, 9),
+            Margin = new Thickness(0, 0, 0, 20), Child = grid };
+        input.GotKeyboardFocus += (_, _) => border.BorderBrush = Accent;
+        input.LostKeyboardFocus += (_, _) => border.BorderBrush = Line;
+        return border;
+    }
 }

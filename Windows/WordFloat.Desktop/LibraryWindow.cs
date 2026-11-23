@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -139,7 +140,7 @@ internal sealed class LibraryWindow : Window
         var dock=new DockPanel();
         lookupInput=SearchBox(lookupQuery,"搜索单词或中文释义",q=>{lookupQuery=q;audio.Stop();searchTimer.Stop();searchTimer.Start();});
         lookupInput.Tag="dictionary.search";lookupInput.KeyDown+=(_,e)=>{if(e.Key==Key.Enter){searchTimer.Stop();ShowLookup();e.Handled=true;}};
-        DockPanel.SetDock(lookupInput,Dock.Top);dock.Children.Add(lookupInput);
+        var searchField=LibraryTheme.SearchField(lookupInput,"搜索单词或中文释义");DockPanel.SetDock(searchField,Dock.Top);dock.Children.Add(searchField);
         dictionaryPage=new DictionaryPage(study,audio,Ink,Muted,Panel);dock.Children.Add(dictionaryPage);center.Content=dock;ShowLookup();
     }
     private void ShowLookup()
@@ -157,20 +158,45 @@ internal sealed class LibraryWindow : Window
         System.Windows.Automation.AutomationProperties.SetName(input,placeholder);
         input.TextChanged+=(_,_)=>changed(input.Text);return input;
     }
-    private WrapPanel? bookCards;
+    private UniformGrid? bookCards;
     private TextBlock? emptyBooks;
+    private readonly Dictionary<string,Button> filters = new();
     private void ShowBookPage()
     {
         var dock=new DockPanel();
-        var heading=UI.Text(category=="exam"?"考试词汇":category=="professional"?"专业领域":"单词本",25,Ink);heading.Margin=new Thickness(0,0,0,6);DockPanel.SetDock(heading,Dock.Top);dock.Children.Add(heading);
-        var search=SearchBox(bookQuery,"搜索词本名称或领域",q=>{bookQuery=q;searchTimer.Stop();searchTimer.Start();});DockPanel.SetDock(search,Dock.Top);dock.Children.Add(search);
-        var footer=new StackPanel{Margin=new Thickness(0,12,0,0)};
-        var browse=UI.Button("浏览词条",()=>{page="words";wordQuery="";ShowPage();},Ink,"library.browse");browse.HorizontalAlignment=HorizontalAlignment.Left;footer.Children.Add(browse);
-        DockPanel.SetDock(footer,Dock.Bottom);dock.Children.Add(footer);
-        bookCards=new WrapPanel();emptyBooks=UI.Text("没有找到词本",14,Muted);
+        var toolbar=new Grid{Margin=new Thickness(0,0,0,24)};
+        toolbar.ColumnDefinitions.Add(new ColumnDefinition{Width=GridLength.Auto});toolbar.ColumnDefinitions.Add(new ColumnDefinition());
+        var categories=new StackPanel{Orientation=Orientation.Horizontal,VerticalAlignment=VerticalAlignment.Center};filters.Clear();
+        foreach(var (title,id) in new[]{("全部","all"),("考试","exam"),("专业","professional")})
+        {
+            var filter=UI.Button(title,()=>{category=id;UpdateFilters();RefreshBooks();},Ink,"category."+id);
+            filter.FontSize=14;filter.Padding=new Thickness(16,8,16,8);filter.Margin=new Thickness(0,0,8,0);filters.Add(id,filter);categories.Children.Add(filter);
+        }
+        toolbar.Children.Add(categories);UpdateFilters();
+        var search=SearchBox(bookQuery,"搜索词本",q=>{bookQuery=q;searchTimer.Stop();searchTimer.Start();});search.Tag="books.search";
+        var searchField=LibraryTheme.SearchField(search,"搜索词本");searchField.MaxWidth=320;searchField.MinWidth=160;searchField.HorizontalAlignment=HorizontalAlignment.Stretch;searchField.Margin=new Thickness(16,0,0,0);
+        Grid.SetColumn(searchField,1);toolbar.Children.Add(searchField);DockPanel.SetDock(toolbar,Dock.Top);dock.Children.Add(toolbar);
+        bookCards=new UniformGrid{Columns=3,HorizontalAlignment=HorizontalAlignment.Stretch};emptyBooks=UI.Text("没有找到词本",14,Muted);
         var cards=new StackPanel();cards.Children.Add(emptyBooks);cards.Children.Add(bookCards);
-        dock.Children.Add(new ScrollViewer{Content=cards,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});
-        center.Content=dock;RefreshBooks();
+        var browse=UI.Button("浏览词条 →",()=>{wordQuery="";Navigate("words");},Muted,"library.browse");browse.FontSize=14;browse.Padding=new Thickness(0,12,0,12);browse.HorizontalAlignment=HorizontalAlignment.Left;cards.Children.Add(browse);
+        var scroll=new ScrollViewer{Content=cards,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
+        cards.SizeChanged+=(_,e)=>LayoutBooks(e.NewSize.Width);
+        dock.Children.Add(scroll);center.Content=dock;RefreshBooks();
+    }
+    private void UpdateFilters()
+    {
+        foreach(var (id,button) in filters)
+        {var selected=id==category;button.Background=selected?LibraryTheme.Primary:Panel;button.Foreground=selected?Brushes.White:Muted;}
+    }
+    private void LayoutBooks(double width)
+    {
+        if(bookCards is null || width<=0)return;
+        bookCards.Columns=width>=720?3:2;
+        for(var i=0;i<bookCards.Children.Count;i++)
+        {
+            var column=i%bookCards.Columns;
+            ((FrameworkElement)bookCards.Children[i]).Margin=new Thickness(column==0?0:8,0,column==bookCards.Columns-1?0:8,16);
+        }
     }
     internal IReadOnlyList<VocabularyBook> MatchingBooks(string query,string filter="all")=>study.Books.Where(b=>(filter=="all"||b.Category==filter)&&(b.Name.Contains(query,StringComparison.OrdinalIgnoreCase)||b.Id.Contains(query,StringComparison.OrdinalIgnoreCase)||b.Subtitle.Contains(query,StringComparison.OrdinalIgnoreCase)||b.CategoryTitle.Contains(query,StringComparison.OrdinalIgnoreCase))).ToArray();
     private void RefreshBooks()
@@ -179,12 +205,26 @@ internal sealed class LibraryWindow : Window
         bookCards.Children.Clear();var books=MatchingBooks(bookQuery.Trim(),category);emptyBooks!.Visibility=books.Count==0?Visibility.Visible:Visibility.Collapsed;
         foreach(var book in books)
         {
-            var button=UI.Button("",()=>study.SelectBook(book.Id),Ink,"book."+book.Id);button.Padding=new Thickness(0);button.Margin=new Thickness(0,0,12,12);button.Width=260;
-            var lines=new StackPanel{Margin=new Thickness(17,13,17,13)};var title=UI.Text(book.Name,18,Ink);title.FontWeight=FontWeights.Medium;lines.Children.Add(title);
-            var count=UI.Text($"{book.Count:N0} 词",11,Muted);count.Margin=new Thickness(0,8,0,0);lines.Children.Add(count);
-            button.Content=new Border{Background=Panel,BorderBrush=UI.Brush(study.SelectedBookId==book.Id?"#659F79":NativeWindow.IsDark?"#38463C":"#E0E6DE"),BorderThickness=new Thickness(study.SelectedBookId==book.Id?2:1),CornerRadius=new CornerRadius(12),Child=lines};
+            var selected=study.SelectedBookId==book.Id;
+            var button=UI.Button(book.Name,()=>study.SelectBook(book.Id),Ink,"book."+book.Id);
+            button.Padding=new Thickness(0);button.HorizontalContentAlignment=HorizontalAlignment.Stretch;
+            var group=new Grid{Margin=new Thickness(20,28,20,28),VerticalAlignment=VerticalAlignment.Center};
+            group.ColumnDefinitions.Add(new ColumnDefinition{Width=GridLength.Auto});group.ColumnDefinitions.Add(new ColumnDefinition());
+            var icon=LibraryIcons.Create("book",Ink,28);icon.Margin=new Thickness(0,0,16,0);group.Children.Add(icon);
+            var lines=new StackPanel{VerticalAlignment=VerticalAlignment.Center};
+            var title=UI.Text(book.Name,16,Ink);title.FontWeight=FontWeights.Bold;lines.Children.Add(title);
+            var count=UI.Text($"{book.Count:N0} 词",12,Muted);count.Margin=new Thickness(0,10,0,0);lines.Children.Add(count);
+            Grid.SetColumn(lines,1);group.Children.Add(lines);
+            var overlay=new Grid();overlay.Children.Add(group);
+            if(selected)
+            {
+                var check=LibraryIcons.Create("check",LibraryTheme.Accent,18);check.HorizontalAlignment=HorizontalAlignment.Right;check.VerticalAlignment=VerticalAlignment.Top;check.Margin=new Thickness(0,12,12,0);overlay.Children.Add(check);
+            }
+            button.Content=new Border{Height=144,Background=selected?LibraryTheme.Selection:Panel,BorderBrush=selected?LibraryTheme.Accent:LibraryTheme.Line,BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(12),Child=overlay};
+            System.Windows.Automation.AutomationProperties.SetName(button,$"{book.Name}，{book.Count:N0} 词"+(selected?"，已选择":""));
             bookCards.Children.Add(button);
         }
+        LayoutBooks(bookCards.ActualWidth);
     }
     private ListBox? words;
     private ContentControl? wordPreview;
@@ -197,7 +237,7 @@ internal sealed class LibraryWindow : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(200)});grid.ColumnDefinitions.Add(new ColumnDefinition());
         var top=new DockPanel{Margin=new Thickness(0,0,0,16)};
         var back=UI.Button("← 词本",()=>{page="books";ShowPage();},Muted);DockPanel.SetDock(back,Dock.Right);top.Children.Add(back);top.Children.Add(UI.Text(study.CurrentBook?.Name??"词条",24,Ink));Grid.SetColumnSpan(top,2);grid.Children.Add(top);
-        var search=SearchBox(wordQuery,"搜索英文或中文释义",q=>{wordQuery=q;searchTimer.Stop();searchTimer.Start();});Grid.SetRow(search,1);Grid.SetColumnSpan(search,2);grid.Children.Add(search);
+        var search=SearchBox(wordQuery,"搜索英文或中文释义",q=>{wordQuery=q;searchTimer.Stop();searchTimer.Start();});var searchField=LibraryTheme.SearchField(search,"搜索英文或中文释义");Grid.SetRow(searchField,1);Grid.SetColumnSpan(searchField,2);grid.Children.Add(searchField);
         words=new ListBox{DisplayMemberPath="Spelling",Background=Panel,Foreground=Ink,BorderThickness=new Thickness(0),Margin=new Thickness(0,0,18,0)};
         VirtualizingPanel.SetIsVirtualizing(words,true);VirtualizingPanel.SetVirtualizationMode(words,VirtualizationMode.Recycling);
         words.SelectionChanged+=(_,_)=>PreviewWord(words.SelectedItem as BookEntry);Grid.SetRow(words,2);grid.Children.Add(words);
