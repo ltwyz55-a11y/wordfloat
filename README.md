@@ -1,5 +1,7 @@
 # 浮词
 
+源码与发行包：[GitHub 仓库](https://github.com/ltwyz55-a11y/wordfloat)、[最新下载](https://github.com/ltwyz55-a11y/wordfloat/releases/latest)。当前仓库为私有，需要登录获授权的 GitHub 账号。
+
 一款在 Mac 桌面上方陪你记单词的小卡片。支持 macOS 13 及以上。本次构建为 Intel（x86_64）版本，与当前电脑匹配；其他架构可从源码重新构建。
 
 ## Windows 版本
