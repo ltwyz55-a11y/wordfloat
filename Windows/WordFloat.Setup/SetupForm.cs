@@ -13,7 +13,7 @@ internal sealed class SetupForm : Form
     private enum Page { Welcome,Options,Installing,Complete,Failed }
     private readonly SetupMetadata metadata;
     private readonly Panel body=new Panel{Dock=DockStyle.Fill,Padding=new Padding(30,8,30,12),AutoScroll=true};
-    private readonly Label title=new Label{AutoSize=true,Font=new Font("Microsoft YaHei UI",20,FontStyle.Bold)};
+    private readonly Label title=new Label{AutoSize=true,Font=new Font("Microsoft YaHei",20,FontStyle.Bold)};
     private readonly Label step=new Label{AutoSize=true,ForeColor=Color.FromArgb(112,128,119),Margin=new Padding(0,10,0,0)};
     private readonly Button primary=Button("下一步",true),back=Button("上一步"),cancel=Button("取消");
     private readonly CheckBox desktop=new CheckBox{Text="创建桌面快捷方式",Checked=true,AutoSize=true,Margin=new Padding(0,16,0,8)};
@@ -29,7 +29,7 @@ internal sealed class SetupForm : Form
     {
         this.metadata=metadata;Text="浮词安装向导";ClientSize=new Size(720,500);FormBorderStyle=FormBorderStyle.FixedDialog;
         MaximizeBox=false;StartPosition=FormStartPosition.CenterScreen;AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;
-        Font=new Font("Microsoft YaHei UI",9);BackColor=Color.FromArgb(250,251,248);ForeColor=Color.FromArgb(37,59,49);
+        Font=new Font("Microsoft YaHei",9);BackColor=Color.FromArgb(250,251,248);ForeColor=Color.FromArgb(37,59,49);
         using(var icon=Assembly.GetExecutingAssembly().GetManifestResourceStream("WordFloat.Setup.Icon"))if(icon is not null)Icon=new Icon(icon);
         var root=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=3};
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,112));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,66));
@@ -57,7 +57,7 @@ internal sealed class SetupForm : Form
         page=next;title.Text=heading;step.Text=caption;body.Controls.Clear();
         var content=new FlowLayoutPanel{Dock=DockStyle.Top,AutoSize=true,FlowDirection=FlowDirection.TopDown,WrapContents=false};body.Controls.Add(content);return content;
     }
-    private static Label TextBlock(string text,float size=10)=>new Label{Text=text,AutoSize=true,MaximumSize=new Size(620,0),Font=new Font("Microsoft YaHei UI",size),Margin=new Padding(0,8,0,8)};
+    private static Label TextBlock(string text,float size=10)=>new Label{Text=text,AutoSize=true,MaximumSize=new Size(620,0),Font=new Font("Microsoft YaHei",size),Margin=new Padding(0,8,0,8)};
     private void ShowWelcome()
     {
         var content=PageBody(Page.Welcome,"欢迎安装浮词","第 1 步 / 共 4 步　·　Windows "+metadata.Version);

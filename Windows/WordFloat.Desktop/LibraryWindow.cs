@@ -33,7 +33,7 @@ internal sealed class LibraryWindow : Window
     {
         this.study=study;this.audio=audio;this.appearance=appearance;this.returnToCard=returnToCard;this.quit=quit;
         Title="浮词 · 单词本";Width=960;Height=700;MinWidth=840;MinHeight=600;WindowStartupLocation=WindowStartupLocation.CenterScreen;
-        FontFamily=new FontFamily("Segoe UI, Microsoft YaHei UI");
+        FontFamily=UI.Font;
         searchTimer.Tick+=(_,_)=>{searchTimer.Stop();if(HasLookup)ShowLookup();else if(page=="words")ShowWords();else if(page=="books")RefreshBooks();};
         study.Changed+=StudyChanged;audio.MessageChanged+=ShowStatus;
         Closing+=(_,e)=>{if(!allowClose){e.Cancel=true;Dispatcher.BeginInvoke(quit);}};

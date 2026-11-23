@@ -31,6 +31,7 @@ internal static class Program
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static int RunDesktop(string[] args)
     {
+            UI.ConfigureTypography();
             StartupLog.Write("Loading desktop assemblies");
             NativeWindow.SafeMode=Array.IndexOf(args,"--safe-mode")>=0;
             if(NativeWindow.SafeMode)RenderOptions.ProcessRenderMode=RenderMode.SoftwareOnly;

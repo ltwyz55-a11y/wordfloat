@@ -13,6 +13,12 @@ namespace WordFloat.Desktop;
 
 internal static class UI
 {
+    internal static readonly FontFamily Font = new("Microsoft YaHei");
+    internal static void ConfigureTypography()
+    {
+        Control.FontFamilyProperty.OverrideMetadata(typeof(Control), new FrameworkPropertyMetadata(Font));
+        TextBlock.FontFamilyProperty.OverrideMetadata(typeof(TextBlock), new FrameworkPropertyMetadata(Font));
+    }
     internal static SolidColorBrush Brush(string hex, double opacity = 1)
     {
         var color = (Color)ColorConverter.ConvertFromString(hex);
@@ -22,7 +28,7 @@ internal static class UI
     internal static TextBlock Text(string text, double size = 13, Brush? color = null) => new()
     {
         Text = text, FontSize = size, Foreground = color ?? Brush("#253B31"), TextWrapping = TextWrapping.Wrap,
-        FontFamily = new FontFamily("Segoe UI, Microsoft YaHei UI"), LineStackingStrategy = LineStackingStrategy.MaxHeight
+        FontFamily = Font, LineStackingStrategy = LineStackingStrategy.MaxHeight
     };
     internal static Button Button(string title, Action action, Brush? color = null, string? id = null)
     {

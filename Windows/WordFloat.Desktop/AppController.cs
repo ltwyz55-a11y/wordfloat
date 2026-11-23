@@ -48,7 +48,7 @@ internal sealed class AppController : IDisposable
         using(var icon=typeof(AppController).Assembly.GetManifestResourceStream("WordFloat.Icon"))
             trayIcon=icon is null?(Drawing.Icon)Drawing.SystemIcons.Application.Clone():new Drawing.Icon(icon);
         tray=new Forms.NotifyIcon{Text=AppInfo.Name,Icon=trayIcon,Visible=true};
-        var menu=new Forms.ContextMenuStrip();
+        var menu=new Forms.ContextMenuStrip{Font=new Drawing.Font("Microsoft YaHei",9)};
         var toggle=menu.Items.Add("显示单词卡片",null,(_,_)=>OnUi(()=>{if(Card.IsVisible)Card.Conceal();else ShowCard();}));
         menu.Items.Add("打开单词本",null,(_,_)=>OnUi(ShowLibrary));
         menu.Items.Add("隐私与词库来源",null,(_,_)=>OnUi(()=>{ShowLibrary();AboutWindow.Show(Library);}));
