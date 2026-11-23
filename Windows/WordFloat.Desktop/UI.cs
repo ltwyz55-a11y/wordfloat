@@ -34,14 +34,14 @@ internal static class UI
     {
         var button = new Button { Content = title, Foreground = color ?? Brush("#253B31"), Background = Brushes.Transparent,
             BorderThickness = new Thickness(0), Padding = new Thickness(8,5,8,5), FontSize = 12, Cursor = Cursors.Hand,
-            Tag = id, ToolTip = title, VerticalContentAlignment = VerticalAlignment.Center };
+            Tag = id, ToolTip = title, HorizontalContentAlignment = HorizontalAlignment.Center, VerticalContentAlignment = VerticalAlignment.Center };
         var border = new FrameworkElementFactory(typeof(Border));
         border.SetValue(Border.CornerRadiusProperty,new CornerRadius(6));
         border.SetBinding(Border.BackgroundProperty,new Binding("Background") { RelativeSource = RelativeSource.TemplatedParent });
         var presenter = new FrameworkElementFactory(typeof(ContentPresenter));
         presenter.SetBinding(ContentPresenter.ContentProperty,new Binding("Content") { RelativeSource = RelativeSource.TemplatedParent });
         presenter.SetBinding(ContentPresenter.MarginProperty,new Binding("Padding") { RelativeSource = RelativeSource.TemplatedParent });
-        presenter.SetValue(FrameworkElement.HorizontalAlignmentProperty,HorizontalAlignment.Center);
+        presenter.SetBinding(FrameworkElement.HorizontalAlignmentProperty,new Binding("HorizontalContentAlignment") { RelativeSource = RelativeSource.TemplatedParent });
         presenter.SetValue(FrameworkElement.VerticalAlignmentProperty,VerticalAlignment.Center);
         border.AppendChild(presenter);
         var template = new ControlTemplate(typeof(Button)) { VisualTree = border };
