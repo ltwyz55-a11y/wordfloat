@@ -189,7 +189,7 @@ internal sealed class LibraryWindow : Window
         var start=UI.Button("从这个词继续 →",()=>{study.Jump(entry.Id);returnToCard();},Brushes.White,"word.start");start.Background=UI.Brush("#346C53");start.Margin=new Thickness(0,14,0,0);DockPanel.SetDock(start,Dock.Bottom);dock.Children.Add(start);
         var content=new StackPanel();content.Children.Add(UI.Text(entry.Spelling,27,Ink));
         var phonetic=UI.Text(string.Join("   ",new[]{entry.PartOfSpeech,entry.Phonetic}.Where(s=>s.Length>0)),12,Muted);phonetic.Margin=new Thickness(0,10,0,12);content.Children.Add(phonetic);
-        content.Children.Add(UI.Button("▶ 播放发音",()=>audio.Speak(entry.Spelling),Ink));
+        content.Children.Add(UI.SpeechButton("听发音",()=>audio.Speak(entry.Spelling),Ink,"word.speak"));
         var meaning=UI.Text(entry.Meaning,14,Ink);meaning.Margin=new Thickness(0,18,0,0);content.Children.Add(meaning);
         var details=study.Store.Details(entry.Id);
         if(details.DictionaryMeaning.Length>0 && details.DictionaryMeaning!=entry.Meaning)

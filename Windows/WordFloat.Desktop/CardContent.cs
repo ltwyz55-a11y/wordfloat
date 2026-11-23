@@ -80,7 +80,7 @@ internal static class CardContent
             Source("维基词典 · CC BY-SA 4.0",details.Senses[0].SourceURL,"senses.source");
         }
         if (details.EnglishDefinition.Length>0) { Section("英英释义"); Paragraph(details.EnglishDefinition); }
-        Paragraph("词典释义及词形：ECDICT · MIT\n词源及补充义项：维基词典贡献者\n例句可能使用不同词义；来源语料未经逐句审校。",size:9);
+        Paragraph("词本释义：对应词本原始资料\n通用词典及词形：ECDICT · MIT\n词源及补充义项：维基词典贡献者\n例句可能使用不同词义；来源语料未经逐句审校。",size:9);
         Source("词源及补充义项许可","https://creativecommons.org/licenses/by-sa/4.0/","dictionary.license");
         return CardScrolling.Create(stack,style);
     }

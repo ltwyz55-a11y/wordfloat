@@ -57,8 +57,7 @@ internal sealed class DictionaryPage : Grid
             void Section(string title){content.Children.Add(new Border{Height=1,Background=UI.Brush(NativeWindow.IsDark?"#445248":"#D7DED6"),Margin=new Thickness(0,8,0,14)});Paragraph(title,11,muted);}
             void Source(string title,string url){var button=UI.Button(title,()=>UI.OpenLink(url),muted);button.HorizontalAlignment=HorizontalAlignment.Left;content.Children.Add(button);}
             Paragraph(word.Spelling,28);Paragraph(string.Join("   ",new[]{word.PartOfSpeech,word.Phonetic}.Where(s=>s.Length>0)),12,muted);
-            var play=UI.Button("听发音",()=>audio.Speak(word.Spelling),ink,"dictionary.speak");play.HorizontalAlignment=HorizontalAlignment.Left;play.Margin=new Thickness(0,0,0,16);
-            var playLabel=new StackPanel{Orientation=Orientation.Horizontal};playLabel.Children.Add(CardIcons.Speaker(ink));var caption=UI.Text("听发音",12,ink);caption.Margin=new Thickness(8,0,0,0);playLabel.Children.Add(caption);play.Content=playLabel;content.Children.Add(play);
+            var play=UI.SpeechButton("听发音",()=>audio.Speak(word.Spelling),ink,"dictionary.speak");play.Margin=new Thickness(0,0,0,16);content.Children.Add(play);
             Paragraph(word.Meaning,15);
             var memberships=study.Store.Memberships(word.Id);
             Paragraph("收录于："+string.Join("、",memberships.Select(e=>study.Books.FirstOrDefault(b=>b.Id==e.BookId)?.Name??e.BookId)),11,muted);
@@ -81,7 +80,7 @@ internal sealed class DictionaryPage : Grid
             }
             if(details.Senses.Length>0){Section("词典补充义项");foreach(var sense in details.Senses)Paragraph(string.Join(" · ",new[]{sense.PartOfSpeech,sense.Text}.Where(s=>s.Length>0)));Source("维基词典 · CC BY-SA 4.0",details.Senses[0].SourceURL);}
             if(details.EnglishDefinition.Length>0){Section("英英释义");Paragraph(details.EnglishDefinition);}
-            Section("内容来源");Paragraph("词典释义及词形：ECDICT · MIT\n词源及补充义项：维基词典贡献者\n例句可能使用不同词义；来源语料未经逐句审校。",10,muted);Source("词源与补充义项许可","https://creativecommons.org/licenses/by-sa/4.0/");
+            Section("内容来源");Paragraph("词本释义：对应词本原始资料\n通用词典及词形：ECDICT · MIT\n词源及补充义项：维基词典贡献者\n例句可能使用不同词义；来源语料未经逐句审校。",10,muted);Source("词源与补充义项许可","https://creativecommons.org/licenses/by-sa/4.0/");
             preview.Content=new ScrollViewer{Content=content,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
         }
         catch(Exception error)when(error is InvalidOperationException or System.Text.Json.JsonException){preview.Content=UI.Text("无法读取释义："+error.Message,14,muted);}

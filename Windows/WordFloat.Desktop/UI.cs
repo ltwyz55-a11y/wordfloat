@@ -46,6 +46,16 @@ internal static class UI
         System.Windows.Automation.AutomationProperties.SetName(button,title);
         return button;
     }
+    internal static Button SpeechButton(string title, Action action, Brush ink, string? id = null)
+    {
+        var button=Button(title,action,ink,id);
+        var label=new StackPanel{Orientation=Orientation.Horizontal};
+        label.Children.Add(CardIcons.Speaker(ink));
+        var caption=Text(title,12,ink);caption.Margin=new Thickness(8,0,0,0);caption.VerticalAlignment=VerticalAlignment.Center;
+        label.Children.Add(caption);button.Content=label;
+        button.HorizontalAlignment=HorizontalAlignment.Left;button.MinHeight=32;
+        return button;
+    }
     internal static bool IsControlTarget(DependencyObject? source)
     {
         while (source is not null)
