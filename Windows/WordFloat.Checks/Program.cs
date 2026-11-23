@@ -36,6 +36,7 @@ internal static partial class Program
                 using var source=JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"Data/cambridge-listening.json")));
                 var rows=source.RootElement.GetProperty("rows").EnumerateArray().ToArray();
                 var entries=store.Entries("cambridge-listening-4-19");
+                Require(store.Books().Single(b=>b.Id=="cambridge-listening-4-19").Name=="雅思听力词汇","Updated Windows book display name");
                 Require(entries.Count==949&&rows.Length==949,"Imported term count");
                 for(var index=0;index<rows.Length;index++)
                 {
@@ -50,7 +51,7 @@ internal static partial class Program
                 var settings=new SettingsStore(Path.Combine(temporary,"listening-settings.json"));
                 var study=new StudySession(store,settings);study.SelectBook("cambridge-listening-4-19");study.Jump("situational");
                 var restored=new StudySession(store,new SettingsStore(settings.Path));
-                Require(restored.SelectedBookId=="cambridge-listening-4-19" && restored.Current?.Id=="situational","Imported position restore");
+                Require(restored.SelectedBookId=="cambridge-listening-4-19" && restored.Current?.Id=="situational" && restored.CurrentBook?.Name=="雅思听力词汇","Imported position restore");
                 restored.Jump("accurate");restored.Advance(1);Require(restored.Current?.Id=="innovation","Imported book wraps");
             });
             Check("literal Chinese and English search and invalid book", () =>

@@ -93,7 +93,7 @@ internal static class WindowsDiagnostics
                     card.ApplyAction(CardAction.SingleClick);await Pause();Require(engine.Spoken.Count==1,"Repeated reveal stays silent");checks.Add("silent-reveal-collapse-and-manual-pronunciation");
                     card.ApplyAction(CardAction.OpenLibrary);await Pause();Require(controller.Library.IsVisible&&!card.IsVisible,"Open library");
                     Require(controller.Library.MatchingBooks("设计","professional").Count==2,"Chinese book filter");
-                    Require(controller.Library.MatchingBooks("ielts").Single().Id=="ielts","English book filter");checks.Add("library-selection-and-book-search");
+                    Require(controller.Library.MatchingBooks("ielts").Single().Id=="ielts","English book filter");Require(controller.Library.MatchingBooks("雅思听力词汇").Single().Id=="cambridge-listening-4-19" && controller.Library.MatchingBooks("剑雅4–19听力答案词").Single().Id=="cambridge-listening-4-19","New and legacy listening names find the same book");checks.Add("library-selection-and-book-search");
                     controller.Library.ShowBooks();await Pause();
                     var library=controller.Library;
                     Button FindButton(string tag)=>Descendants(library).OfType<Button>().First(b=>b.Tag as string==tag);

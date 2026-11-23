@@ -198,7 +198,7 @@ internal sealed class LibraryWindow : Window
             ((FrameworkElement)bookCards.Children[i]).Margin=new Thickness(column==0?0:8,0,column==bookCards.Columns-1?0:8,16);
         }
     }
-    internal IReadOnlyList<VocabularyBook> MatchingBooks(string query,string filter="all")=>study.Books.Where(b=>(filter=="all"||b.Category==filter)&&(b.Name.Contains(query,StringComparison.OrdinalIgnoreCase)||b.Id.Contains(query,StringComparison.OrdinalIgnoreCase)||b.Subtitle.Contains(query,StringComparison.OrdinalIgnoreCase)||b.CategoryTitle.Contains(query,StringComparison.OrdinalIgnoreCase))).ToArray();
+    internal IReadOnlyList<VocabularyBook> MatchingBooks(string query,string filter="all")=>study.Books.Where(b=>(filter=="all"||b.Category==filter)&&(b.Name.Contains(query,StringComparison.OrdinalIgnoreCase)||b.Id.Contains(query,StringComparison.OrdinalIgnoreCase)||b.Subtitle.Contains(query,StringComparison.OrdinalIgnoreCase)||b.CategoryTitle.Contains(query,StringComparison.OrdinalIgnoreCase)||(b.Id=="cambridge-listening-4-19" && ("剑雅4–19听力答案词".Contains(query,StringComparison.OrdinalIgnoreCase)||"剑雅4-19听力答案词".Contains(query,StringComparison.OrdinalIgnoreCase))))).ToArray();
     private void RefreshBooks()
     {
         if(bookCards is null || page!="books")return;

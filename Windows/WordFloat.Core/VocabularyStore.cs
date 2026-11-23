@@ -36,7 +36,7 @@ public sealed class VocabularyStore : IDisposable
     public IReadOnlyList<VocabularyBook> Books() => database.Read("""
         SELECT b.id,b.name,b.category,b.subtitle,b.source,b.version,count(e.word_id)
         FROM books b LEFT JOIN entries e ON e.book_id=b.id GROUP BY b.id ORDER BY b.sort_order
-        """).Select(r => new VocabularyBook(r[0]!, r[1]!, r[2]!, r[3]!, r[4]!, r[5]!, int.Parse(r[6]!, CultureInfo.InvariantCulture))).ToArray();
+        """).Select(r => new VocabularyBook(r[0]!, r[0] == "cambridge-listening-4-19" ? "雅思听力词汇" : r[1]!, r[2]!, r[3]!, r[4]!, r[5]!, int.Parse(r[6]!, CultureInfo.InvariantCulture))).ToArray();
     public IReadOnlyList<BookEntry> Entries(string bookId, string search = "")
     {
         var query = search.Trim();
