@@ -55,6 +55,7 @@ internal sealed class LibraryWindow : Window
     private void BuildShell()
     {
         searchTimer.Stop();dictionaryPage=null;bookCards=null;words=null;navigation.Clear();
+        LibraryTheme.ApplyResources(Resources);
         Background=LibraryTheme.Canvas;Foreground=Ink;
         var grid=new Grid();grid.ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(200)});grid.ColumnDefinitions.Add(new ColumnDefinition());
         var sidebar=new DockPanel{Margin=new Thickness(16,28,16,20)};
@@ -131,7 +132,7 @@ internal sealed class LibraryWindow : Window
     {
         var settings=new StackPanel{MaxWidth=440,HorizontalAlignment=HorizontalAlignment.Left};
         var label=UI.Text("发音口音",14,Ink);label.FontWeight=FontWeights.Bold;settings.Children.Add(label);
-        var accent=new ComboBox{ItemsSource=new[]{"美式英语","英式英语"},SelectedIndex=audio.Accent=="en-GB"?1:0,Margin=new Thickness(0,12,0,24),Padding=new Thickness(10),MinWidth=240,Foreground=Ink,Background=Panel};
+        var accent=new ComboBox{Tag="settings.accent",ItemsSource=new[]{"美式英语","英式英语"},SelectedIndex=audio.Accent=="en-GB"?1:0,Margin=new Thickness(0,12,0,24),Padding=new Thickness(10),MinWidth=240,Foreground=Ink,Background=Panel};
         accent.SelectionChanged+=(_,_)=>audio.Accent=accent.SelectedIndex==1?"en-GB":"en-US";settings.Children.Add(accent);
         settings.Children.Add(UI.Button("关于与隐私",()=>AboutWindow.Show(this),Ink,"library.about"));center.Content=settings;
     }

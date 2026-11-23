@@ -176,6 +176,15 @@ internal static class WindowsDiagnostics
                     controller.ShowLibrary();controller.Library.ShowAppearance();await Pause();Capture(controller.Library,Path.Combine(folder,"appearance-dark.png"));
                     NativeWindow.DiagnosticDarkMode=false;controller.Library.RefreshTheme();await Pause();Capture(controller.Library,Path.Combine(folder,"appearance-light.png"));
                     checks.Add("appearance-editor-light-and-dark");
+                    Require(Descendants(controller.Library).OfType<TextBlock>().Where(t=>t.Text=="预览").All(t=>t.FontFamily.Source=="Microsoft YaHei"),"Appearance labels use Microsoft YaHei");
+                    var settingsButton=Descendants(controller.Library).OfType<Button>().Single(b=>b.Tag as string=="navigation.settings");settingsButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Pause();
+                    var accentControl=Descendants(controller.Library).OfType<ComboBox>().Single(b=>b.Tag as string=="settings.accent");accentControl.SelectedIndex=1;
+                    Require(controller.Audio.Accent=="en-GB"&&new SettingsStore(controller.Settings.Path).Value.Accent=="en-GB","Settings accent persists");
+                    Require(Descendants(controller.Library).OfType<Button>().Any(b=>b.Tag as string=="library.about"),"About remains accessible in settings");
+                    Capture(controller.Library,Path.Combine(folder,"settings-light.png"));controller.Library.ShowBooks();await Pause();
+                    Require(!Descendants(controller.Library).OfType<ComboBox>().Any(b=>b.Tag as string=="settings.accent"),"Settings do not clutter book page");
+                    Require(Descendants(controller.Library).OfType<TextBlock>().Where(t=>study.Books.Any(b=>b.Name==t.Text)).All(t=>t.FontFamily.Source=="Microsoft YaHei"),"Book labels use Microsoft YaHei");
+                    checks.Add("settings-navigation-accent-persistence-and-typography");
                     controller.ShowCard();study.Revealed=false;await Pause();
                     var sameWord=study.Current!.Id;var spokenCount=engine.Spoken.Count;
                     card.Width=1;card.Height=1;await Pause();

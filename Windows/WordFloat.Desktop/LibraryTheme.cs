@@ -18,6 +18,17 @@ internal static class LibraryTheme
     internal static Brush Primary => UI.Brush("#32805B");
     internal static Brush Selection => UI.Brush(NativeWindow.IsDark ? "#293E34" : "#E6F0EA");
 
+    internal static void ApplyResources(ResourceDictionary resources)
+    {
+        resources[SystemColors.WindowBrushKey]=Canvas;
+        resources[SystemColors.WindowTextBrushKey]=Ink;
+        resources[SystemColors.ControlBrushKey]=Surface;
+        resources[SystemColors.ControlTextBrushKey]=Ink;
+        resources[SystemColors.HighlightBrushKey]=Selection;
+        resources[SystemColors.HighlightTextBrushKey]=Ink;
+        resources[SystemColors.GrayTextBrushKey]=Muted;
+    }
+
     internal static TextBlock Heading(string text)
     {
         var heading = UI.Text(text, 32, Ink);

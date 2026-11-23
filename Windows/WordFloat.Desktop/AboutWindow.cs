@@ -24,7 +24,7 @@ internal static class AboutWindow
             using var stream=assembly.GetManifestResourceStream(name)!;using var reader=new StreamReader(stream);
             content.AppendLine(reader.ReadToEnd()).AppendLine().AppendLine();
         }
-        var text=new TextBox{Text=content.ToString(),IsReadOnly=true,TextWrapping=TextWrapping.Wrap,AcceptsReturn=true,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,Padding=new Thickness(20),Background=UI.Brush(NativeWindow.IsDark?"#1C2420":"#FFFFFF"),Foreground=UI.Brush(NativeWindow.IsDark?"#EDF3EF":"#253B31"),BorderThickness=new Thickness(0),FontSize=12};
+        var text=new TextBox{Text=content.ToString(),IsReadOnly=true,TextWrapping=TextWrapping.Wrap,AcceptsReturn=true,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,Padding=new Thickness(20),Background=LibraryTheme.Canvas,Foreground=LibraryTheme.Ink,BorderThickness=new Thickness(0),FontSize=12};
         return new Window{Owner=owner,Title="关于、隐私与词库来源",Width=650,Height=650,MinWidth=450,MinHeight=400,WindowStartupLocation=WindowStartupLocation.CenterOwner,Content=text,Icon=owner.Icon};
     }
 }

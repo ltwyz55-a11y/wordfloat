@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -24,27 +25,30 @@ internal sealed class AppearancePage : UserControl
     private readonly Button tint, text, remove;
     private readonly TextBlock opacityLabel = new();
     private bool updating;
-    private Brush Ink => UI.Brush(NativeWindow.IsDark?"#EDF3EF":"#253B31");
-    private Brush Muted => UI.Brush(NativeWindow.IsDark?"#A6B6AC":"#738078");
+    private readonly Dictionary<string,Button> presetButtons = new();
+    private Brush Ink => LibraryTheme.Ink;
+    private Brush Muted => LibraryTheme.Muted;
     private sealed record ModeItem(string Id,string Title) { public override string ToString()=>Title; }
     private sealed class DialogOwner(IntPtr handle) : Forms.IWin32Window { public IntPtr Handle=>handle; }
     internal AppearancePage(StudySession study,Pronunciation audio,AppearanceController appearance)
     {
         this.study=study;this.audio=audio;this.appearance=appearance;
-        var root=new DockPanel();
-        var heading=new DockPanel{Margin=new Thickness(0,0,0,18)};
-        var import=UI.Button("图片壁纸…",ImportWallpaper,Ink,"appearance.import");DockPanel.SetDock(import,Dock.Right);heading.Children.Add(import);heading.Children.Add(UI.Text("卡片外观",25,Ink));
-        DockPanel.SetDock(heading,Dock.Top);root.Children.Add(heading);
-        var settings=new StackPanel();settings.Children.Add(preview);reveal.Foreground=Muted;reveal.HorizontalAlignment=HorizontalAlignment.Center;
-        reveal.Checked+=(_,_)=>UpdatePreview();reveal.Unchecked+=(_,_)=>UpdatePreview();settings.Children.Add(reveal);
-        settings.Children.Add(UI.Text("预设",12,Muted));
-        var presets=new WrapPanel{Margin=new Thickness(0,7,0,18)};
+        var root=new Grid();root.ColumnDefinitions.Add(new ColumnDefinition());root.ColumnDefinitions.Add(new ColumnDefinition());
+        var previewPanel=new StackPanel();
+        var previewTitle=UI.Text("预览",16,Ink);previewTitle.FontWeight=FontWeights.Bold;previewTitle.Margin=new Thickness(0,0,0,24);previewPanel.Children.Add(previewTitle);
+        previewPanel.Children.Add(new Viewbox{Child=preview,Stretch=Stretch.Uniform,StretchDirection=StretchDirection.DownOnly});
+        reveal.Foreground=Muted;reveal.FontSize=13;reveal.HorizontalAlignment=HorizontalAlignment.Center;
+        reveal.Checked+=(_,_)=>UpdatePreview();reveal.Unchecked+=(_,_)=>UpdatePreview();previewPanel.Children.Add(reveal);
+        root.Children.Add(new Border{Background=LibraryTheme.Surface,CornerRadius=new CornerRadius(12),Padding=new Thickness(18,24,18,24),Margin=new Thickness(0,0,24,0),VerticalAlignment=VerticalAlignment.Top,Child=previewPanel});
+        var settings=new StackPanel();settings.Children.Add(UI.Text("预设",13,Muted));
+        var presets=new WrapPanel{Margin=new Thickness(0,8,0,20)};
         foreach(var preset in CardPreset.All)
         {
-            var button=UI.Button(preset.Title,()=>appearance.Apply(preset),Ink,"preset."+preset.Id);button.Margin=new Thickness(0,0,8,6);button.Background=UI.Brush(NativeWindow.IsDark?"#303F34":"#E7EDE4");presets.Children.Add(button);
+            var button=UI.Button(preset.Title,()=>appearance.Apply(preset),Ink,"preset."+preset.Id);button.Margin=new Thickness(0,0,8,8);button.Padding=new Thickness(12,8,12,8);presetButtons.Add(preset.Id,button);presets.Children.Add(button);
         }
         settings.Children.Add(presets);settings.Children.Add(UI.Text("背景效果",12,Muted));
         mode.ItemsSource=new[]{new ModeItem("frosted","雾面半透明"),new ModeItem("clear","清透半透明"),new ModeItem("solid","纯色"),new ModeItem("wallpaper","图片壁纸")};
+        mode.Foreground=Ink;mode.Background=LibraryTheme.Surface;mode.BorderBrush=LibraryTheme.Line;
         mode.SelectionChanged+=(_,_)=>{if(!updating && mode.SelectedItem is ModeItem item){appearance.Customize(mode:item.Id);if(appearance.Style.Mode!=item.Id)UpdatePreview();}};settings.Children.Add(mode);
         var colors=new Grid{Margin=new Thickness(0,0,0,18)};colors.ColumnDefinitions.Add(new ColumnDefinition());colors.ColumnDefinitions.Add(new ColumnDefinition());
         var tintGroup=new StackPanel{Margin=new Thickness(0,0,10,0)};tintGroup.Children.Add(UI.Text("卡片颜色",12,Muted));
@@ -52,8 +56,10 @@ internal sealed class AppearancePage : UserControl
         var textGroup=new StackPanel{Margin=new Thickness(10,0,0,0)};textGroup.Children.Add(UI.Text("字体颜色",12,Muted));text=UI.Button("",()=>PickColor(true),Ink,"appearance.text");text.Margin=new Thickness(0,7,0,0);textGroup.Children.Add(text);Grid.SetColumn(textGroup,1);colors.Children.Add(textGroup);settings.Children.Add(colors);
         opacityLabel.FontSize=12;opacityLabel.Foreground=Muted;settings.Children.Add(opacityLabel);
         opacity.ValueChanged+=(_,_)=>{if(!updating)appearance.Customize(opacity:opacity.Value);};settings.Children.Add(opacity);
+        settings.Children.Add(UI.Text("壁纸",13,Muted));
+        var import=UI.Button("选择图片",ImportWallpaper,LibraryTheme.Accent,"appearance.import");import.HorizontalAlignment=HorizontalAlignment.Left;import.Margin=new Thickness(0,8,0,12);settings.Children.Add(import);
         var actions=new WrapPanel();remove=UI.Button("移除图片",appearance.RemoveWallpaper,Ink,"appearance.remove");actions.Children.Add(remove);actions.Children.Add(UI.Button("恢复默认",()=>appearance.Apply(CardPreset.All[0]),Ink,"appearance.reset"));settings.Children.Add(actions);
-        root.Children.Add(new ScrollViewer{Content=settings,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});Content=root;
+        var scroll=new ScrollViewer{Content=settings,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};Grid.SetColumn(scroll,1);root.Children.Add(scroll);Content=root;
         Loaded+=(_,_)=>{appearance.Changed+=UpdatePreview;study.Changed+=UpdatePreview;UpdatePreview();};
         Unloaded+=(_,_)=>{appearance.Changed-=UpdatePreview;study.Changed-=UpdatePreview;};
         UpdatePreview();
@@ -63,6 +69,7 @@ internal sealed class AppearancePage : UserControl
         updating=true;
         try
         {
+            foreach(var (id,button) in presetButtons){button.Background=id==appearance.Style.Preset?LibraryTheme.Selection:LibraryTheme.Surface;button.Foreground=id==appearance.Style.Preset?LibraryTheme.Accent:Ink;}
             preview.Content=CardContent.Preview(study,audio,appearance,reveal.IsChecked==true);
             foreach(ModeItem item in mode.Items)if(item.Id==appearance.Style.Mode)mode.SelectedItem=item;
             opacity.Value=appearance.Style.Opacity;opacity.IsEnabled=appearance.Style.Mode!="solid";
@@ -74,7 +81,7 @@ internal sealed class AppearancePage : UserControl
     }
     private static void Swatch(Button button,string hex)
     {
-        var color=(Color)ColorConverter.ConvertFromString(hex);button.Background=UI.Brush(hex);button.Content="选择颜色  "+hex;
+        var color=(Color)ColorConverter.ConvertFromString(hex);button.Background=UI.Brush(hex);button.Content=hex;
         button.Foreground=UI.Brush(color.R*0.299+color.G*0.587+color.B*0.114>145?"#17281F":"#FFFFFF");
     }
     private void PickColor(bool font)
